@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<?php
+include 'conn.php';
+?>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .signup-form {
+      height: fit-content;
+      width: 300px;
+      margin-left: 500px;
+      margin-top: 60px;
+      padding: 20px;
+      background: ##fff;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .signup-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+      font-size: 30px;
+    }
+
+    .signup-form input[type="text"],
+    .signup-form input[type="password"],
+    .signup-form input[type="email"] {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid black;
+      border-radius: 5px;
+
+    }
+
+    .signup-form p {
+      margin-bottom: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 17px;
+    }
+
+    .signup-form .btn-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .signup-form button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      border-radius: 3px;
+      background-color: #0077c0;
+      color: #fff;
+      cursor: pointer;
+
+
+    }
+
+    .signup-form button:hover {
+      background-color: #005e9d;
+
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <div class="signup-popup" id="signupPopup"> -->
+  <div class="signup-form">
+    <h2>Sign up</h2>
+    <form name="myForm" method="POST">
+      <div class='error' id="fullnameError"></div>
+      <input type="text" id="fullname" name="fullname" placeholder="Full Name">
+      <div class='error' id="emailError"></div>
+      <input type="text" id="email" name="email" placeholder="Email">
+      <div class='error' id="numError"></div>
+      <input type="text" id="number" name="contact" placeholder="Contact">
+      <div class='error' id="pwdError"></div>
+      <input type="password" id="password" name="password" placeholder="Password">
+      <div class='error' id="cpwdError"></div>
+      <input type="password" id="confirmPassword" name="cpassword" placeholder="Confirm Password">
+      <p>Sign up as:</p>
+      <div style="display: flex; align-items: center;">
+        <p><input type="radio" name="role" value="player" required>Player</p>
+        <p><input type="radio" name="role" value="owner" style="margin-left: 45px;" required>Owner</p>
+      </div>
+      <div class="btn-container">
+        <!-- <button onclick="closeSignupForm()">Cancel</button> -->
+        <button id="btnSubmit" name="signup" type="submit">Sign up</button>
+      </div>
+    </form>
+    <p>Already have an account? <a href="login.php">Login</a></p>
+  </div>
+  </div>
+
+  <!-- signup php -->
+  <?php
+
+  // Check if the form is submitted
+  if (isset($_POST['signup'])) {
+    $fullname = $_POST['fullname'];
+    $email = $_POST['email'];
+    $contact = $_POST['contact'];
+    $password = $_POST['password'];
+    $role = $_POST['role'];
+
+    // Check if the email or contact already exists for other players
+    $existSql = "SELECT * FROM `user` WHERE (email = '$email' OR contact='$contact') AND role = 'player'";
+    $result = mysqli_query($con, $existSql);
+    $numExist = mysqli_num_rows($result);
+
+    if ($numExist > 0) {
+      echo '<script>alert("Email or Contact already exists!")</script>';
+    } else {
+      $sql = "INSERT INTO user (fullname, email, contact, password, role) 
+            VALUES ('$fullname', '$email', '$contact', '$password', '$role')";
+
+      if ($con->query($sql) === TRUE) {
+        header("Location: login.php?signup=success");
+        exit();
+      } else {
+        echo "Location: signup.php";
+      }
+    }
+  }
+
+  ?>
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+login
+
+
+
+
+
+
+
+
+
+ // Query to retrieve user data based on email and password
+    $query = "SELECT * FROM `user` WHERE email = '$email' AND password = '$password'";
+    $result = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($result);
+
+    if ($row) {
+      // User exists, check role and redirect accordingly
+      $role = $row['role'];
+      if ($role == 'player') {
+        session_start();
+        $_SESSION['loggedin'] = true;
+        $_SESSION['user_id'] = $row['user_id'];
+        $_SESSION['fullname'] = $row['fullname'];
+        $_SESSION['email'] = $email;
+        header("Location: playerhomepage.php");
+        exit();
+      } elseif ($role == 'owner') {
+        session_start();
+        $_SESSION['loggedin'] = true;
+        $_SESSION['user_id'] = $row['user_id'];
+        $_SESSION['fullname'] = $row['fullname'];
+        $_SESSION['email'] = $email;
+        header("Location: futsalregister.php");
+        exit();
+      } else {
+        // Invalid or unrecognized role
+        echo "Invalid email or password!";
+      }
+    } else {
+      echo "<div class= 'error-login'><h4>Incorrect password or email </h4></div>";
+    }
+  }
+  ?>
