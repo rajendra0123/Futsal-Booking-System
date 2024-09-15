@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
 <?php
-session_name("player_session");
+//session_name("player_session");
 session_start();
 include 'conn.php';
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
-    if (!isset($_SESSION['homepage_visited'])) {
-        $_SESSION['homepage_visited'] = true;
-        header("Location: homepage.php");
-        exit;
-    }
+
+if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
+    header('Location: homepage.php');
+    exit;
 }
+
+
+// // 
+// // session_start();
+// if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+//     header("Location: homepage.php");
+//     exit();
+// }
+
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
+
 } else {
     $loggedin = false;
 }
@@ -21,124 +30,107 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <head>
     <style>
-        header {
-            background-color: #f6e2e2;
-            padding: 20px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .title {
-            margin-right: 50px;
-            margin-left: 30px;
-            width: 50%;
-            color: rgb(7, 7, 7);
-            font-size: larger;
-        }
-
-        .title a {
-            text-decoration: none;
-            color: #000;
-        }
-
-        .mid {
-            margin-left: 180px;
-            width: 100%;
-            align-items: center;
-            display: flex;
-            position: relative;
-            height: 50px;
-        }
-
-        .mid img {
-            height: 20px;
-
-        }
-
-        .welcome {
-            display: flex;
-            align-items: center;
-            background-color: grey;
-            height: 50px;
-            border-radius: 10px;
-            padding: 8px;
-        }
-
-        .welcome p {
-            margin-right: 30px;
-            margin-bottom: 20px;
+        .btn-containers {
+            margin-left: -720px;
             margin-top: 20px;
-            margin-left: 20px;
-            font-size: larger;
-            font-weight: bold;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: white;
         }
 
-        button.search-button {
+        .btn-containers button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: blue;
+            color: #ffffff;
             border: none;
-            background-color: transparent;
-            padding: 0;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 10px;
         }
 
-        button.search-button:focus {
-            outline: none;
+        .btn-containers button:hover {
+            background-color: #ff6b6b;
         }
 
-        .navigation {
+        .hero-section {
+            background-image: url('registerimage/nearby.jpeg');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            position: relative;
             display: flex;
             align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            text-align: center;
         }
 
-        .navigation a {
-            text-decoration: none;
-            margin-right: 10px;
-            color: black;
-            font-size: larger;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        .hero-section h1 {
+            font-size: 48px;
+            margin: 0;
+            z-index: 2;
+            margin-right: 220px;
         }
 
-        .dropdown a {
-            text-decoration: none;
-            color: black;
+        .hero-section .mid {
+            position: absolute;
+            bottom: 110px;
+            z-index: 2;
+
+        }
+
+        .hero-section::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
 
         .futsal-section {
             display: flex;
             flex-wrap: wrap;
-            gap: 75px;
-            margin-top: 30px;
-            /* justify-content: center; */
+            gap: 30px;
+            padding: 30px;
+            justify-content: center;
         }
 
         .futsal-box {
             width: 350px;
-            height: 500px;
-            background-color: #f9f9f9;
+            background-color: #333;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+
+        }
+
+        .futsal-box:hover {
+            transform: translateY(-10px);
         }
 
         .futsal-box img {
             width: 100%;
-            height: 350px;
+            height: 300px;
             object-fit: cover;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
 
         .futsal-box h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .futsal-box p {
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 22px;
+            margin: 0 0 12px 0;
+            color: white;
         }
 
         .futsal-box .btn-container {
@@ -147,20 +139,21 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
         }
 
-        .futsal-box .btn-container button {
-            padding: 8px 16px;
-            font-size: 14px;
-            background-color: #333;
-            color: #fff;
+        .futsal-box button {
+            padding: 12px 18px;
+            font-size: 18px;
+            background-color: blue;
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-
+            transition: background-color 0.3s;
         }
 
-        .futsal-section .futsal-box .btn-container button:hover {
-            opacity: 0.5;
+        .futsal-box button:hover {
+            background-color: #ff6b6b;
         }
+
 
         .futsol {
             margin-left: 150px;
@@ -169,82 +162,22 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 </head>
 
 <header>
-    <div class="title">
-
-        <h1>FUTSOL</h1>
-
-    </div>
-
-    <div class="mid">
-        <form method="GET" action="search.php">
-            <input type="search" name="search" placeholder="Search By Name or Location" size="37" />
-            <button type="submit" class="search-button">
-                <img src="searchlogo.png" class="search-logo">
-            </button>
-        </form>
-    </div>
-
-
-    <div class="navigation">
-
-        <?php
-        if (!$loggedin) {
-            echo '
-           
-        <a href="groundlist.php">GROUNDS</a>&nbsp;&nbsp;&nbsp;
-        <a href="login.php">LOGIN</a>
-    </div>';
-        } else {
-            echo '
-        <div class="navigation">
-        <a href="mybooking.php">BOOKINGS</a>&nbsp;&nbsp;&nbsp;
-            <a href="groundlist.php">GROUNDS</a>&nbsp;&nbsp;&nbsp;
-        </div>';
-
-            $player_id = $_SESSION['player_id'];
-            $sql = "SELECT * FROM player WHERE player_id = $player_id";
-            $result = mysqli_query($con, $sql);
-            if ($result) {
-                if ($row = mysqli_fetch_assoc($result)) {
-                    $player_id = $row['player_id'];
-                    $fullname = $row['fullname'];
-                    echo '<div class="navigation">
-                     <a href="playerdetails.php?player_id=' . $player_id . '">DETAILS</a>
-                    </div>';
-                }
-            }
-
-            echo ' 
-        <div class="dropdown">
-            <img src="loginimage.png" alt="player Image" class="user-image" height="55px">
-            <a href="logout.php">Logout</a>
-        
-        </div>
-    </div>';
-        }
-        ?>
-        <?php
-        if ($loggedin) {
-            echo '
-    <div class="welcome">';
-            if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-                // $fullname = $_SESSION['fullname'];
-                echo "<p>$fullname</p>";
-            } else {
-                header("Location: login.php");
-                exit;
-            }
-
-            echo '
-    </div>
-    </div>';
-        }
-        ?>
 </header>
 
 <body>
+
+    <?php include 'nav.php' ?>
+    <div class="hero-section">
+        <h1>Looking for Nearby Futsal?</h1>
+        <div class="mid">
+            <div class="btn-containers">
+                <button onclick="window.location.href='nearfutsal.php'">Find Here</button>
+            </div>
+        </div>
+    </div>
+
     <?php
-    $sql = "SELECT * FROM ground LIMIT 4";
+    $sql = "SELECT * FROM ground";
     $result = mysqli_query($con, $sql);
     echo '<section class="futsal-section">';
     while ($row = mysqli_fetch_assoc($result)) {
@@ -281,6 +214,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         }
 
     </script>
+    <?php include 'footer.php' ?>
 </body>
 
 </html>

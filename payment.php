@@ -1,5 +1,5 @@
 <?php
-session_name("player_session");
+//session_name("player_session");
 session_start();
 // Retrieve the selected date and time slot 
 $selectedDate = $_GET['selectedDate'];
@@ -154,6 +154,7 @@ if (isset($_POST['confirm'])) {
         }
     </style>
 </head>
+
 <body>
     <form method="post" enctype="multipart/form-data">
         <table align="center" class="table">
@@ -203,4 +204,5 @@ if (isset($_POST['confirm'])) {
         </table>
     </form>
 </body>
-</html>
+
+</html> 

@@ -1,11 +1,8 @@
 <?php
 session_start();
+if (isset($_SESSION['admin_id'])) {
+    unset($_SESSION['admin_id']);
+}
 
-// Clear the session data
-session_unset();
-session_destroy();
-
-// Redirect the user to the homepage
 header("Location: adminlogin.php");
 exit;
-?>

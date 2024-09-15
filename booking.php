@@ -2,8 +2,13 @@
 <html>
 <?php
 include 'conn.php';
-session_name("player_session");
+//session_name("player_session");
 session_start();
+if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
+  header('Location: homepage.php');
+  exit;
+}
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
   $loggedin = true;
 } else {
@@ -13,231 +18,166 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 ?>
 
 <head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
-    .title {
-      margin-right: 50px;
-      margin-left: 30px;
-      width: "50%";
-      color: rgb(7, 7, 7);
-      font-size: larger;
-
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
 
-    .title a {
-      text-decoration: none;
-      color: #000;
-    }
-
-    header {
-      background-color: #f6e2e2;
+    .futsal-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
       padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      justify-content: center;
     }
 
-    .welcome {
-      display: flex;
-      align-items: center;
-      background-color: grey;
-      height: 50px;
-      border-radius: 10px;
-      padding: 8px;
+    .futsal-box {
+      width: 100%;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background-color: transparent;
     }
 
-    .welcome p {
-      margin-right: 30px;
-      margin-bottom: 20px;
+    .futsal-box img {
+      width: 100%;
+      height: 500px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .futsal-box h1 {
+      text-align: center;
+      font-size: 40px;
+    }
+
+    .futsal-box h4 {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    .description-container {
+      padding: 0;
+      margin: 10px 0;
+      background-color: transparent;
+    }
+
+    .map {
+      width: 100%;
+      height: 400px;
       margin-top: 20px;
-      margin-left: 20px;
-      font-size: larger;
-      font-weight: bold;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      color: white;
     }
 
-    .navigation {
-      display: flex;
-      align-items: center;
+    .btn-container {
+      text-align: center;
+      margin-top: 20px;
     }
 
-    .navigation a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-
+    .btn-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: blue;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
 
-    .dropdown {
-      margin-left: 750px;
-    }
-
-    .dropdown a {
-      display: flex;
-      text-decoration: none;
-      color: black;
-
-    }
-
-    .logo {
-      margin-right: 20px;
-    }
-
-    .header-links {
-      text-align: right;
-    }
-
-    .header-links a {
-      color: #fff;
-      text-decoration: none;
-      margin-left: 10px;
+    .btn-container button:hover {
+      background-color: #ff6b6b;
     }
 
     .booking-page {
-      margin: 50px auto;
-      width: 80%;
-      text-align: center;
+      display: flex;
+      gap: 30px;
+      padding: 20px;
     }
 
     .booking-header {
-      margin-bottom: 20px;
-    }
-
-    .booking-header h1 {
-      font-size: 24px;
+      width: 100%;
+      text-align: center;
     }
 
     .booking-body {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      text-align: left;
+      width: 100%;
+      gap: 20px;
     }
 
     .left-section {
-      flex: 1;
+      width: 65%;
     }
 
     .left-section img {
       width: 100%;
-      max-height: 350px;
+      height: auto;
       object-fit: cover;
       margin-bottom: 10px;
-      border-radius: 5px;
-
-    }
-
-    #see-time-slots {
-      cursor: pointer;
     }
 
     .right-section {
-      flex: 1;
-
+      width: 35%;
+      height: 250px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
     }
 
     .right-section h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
-    #time-table {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 5px;
+    .right-section p {
       margin-bottom: 10px;
-    }
-
-    #confirm-booking {
-      padding: 10px 20px;
       font-size: 16px;
-      background-color: #333;
+    }
+
+    .right-section input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .right-section button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      background-color: blue;
       color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
-
+      transition: background-color 0.3s;
     }
 
-    #confirm-booking button:hover {
-      opacity: 0.5;
+    .right-section button:hover {
+      background-color: #ff6b6b;
     }
-
-    .description-container {
-      width: 600px;
-      word-wrap: break-word;
-    }
-
-    .description-text {
-      margin-top: 10px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-
-    }
-
-    /* .map {
-      margin-top: -100px;
-    } */
   </style>
   <title>Booking Page</title>
 </head>
 
 <body>
   <header>
-    <div class="title">
-
-      <h1>FUTSOL
-      </h1>
-    </div>
-
-    <?php
-    $player_id = $_SESSION['player_id'];
-    $sql = "SELECT * FROM player WHERE player_id = $player_id";
-    $result = mysqli_query($con, $sql);
-    $row = mysqli_fetch_assoc($result);
-    $player_id = $row['player_id'];
-    $fullname = $row['fullname'];
-    if ($loggedin) {
-      echo '
-  <div class="navigation">
-    <a href="playerhomepage.php">HOME</a>
-    
-    </div>';
-    }
-    ?>
-
-    <?php
-    if ($loggedin) {
-      echo '
-        <div class="dropdown">
-            <img src="loginimage.png" alt="User Image" class="user-image" height="55px">
-        
-        <a href="logout.php">Logout</a>
-    </div>
-</div>';
-    }
-    ?>
-    <?php
-    if ($loggedin) {
-      echo '
-    <div class="welcome">';
-      if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-        // $fullname = $_SESSION['fullname'];
-        echo "<p>$fullname</p>";
-      } else {
-        header("Location: login.php");
-        exit;
-      }
-      echo '
-    </div>
-    </div>';
-    }
-    ?>
   </header>
 
   <?php
+  include 'nav.php';
   $ground_id = $_GET['ground_id'];
   $sql = "SELECT * FROM ground WHERE ground_id=$ground_id";
   $result = mysqli_query($con, $sql);
@@ -248,49 +188,49 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     // $ground_description_formatted = nl2br($ground_description);
     $ground_image = $row['ground_image'];
     $contact = $row['contact'];
-    $map = $row['map'];
+    $latitude = $row['ground_latitude'];
+    $longitude = $row['ground_longitude'];
   }
   ?>
 
   <div class="booking-page">
-    <div class="booking-header">
-      <h1>
-        <?php echo $ground_name ?>
-      </h1>
-    </div>
-    <div class="booking-body">
-      <div class="left-section">
-        <img src="<?php echo $ground_image; ?>" alt="Futsal Image">
-        <h4 align="center">Location:
-          <?php echo $ground_location ?>
-        </h4>
-        <h4 align="center">Contact:
-          <?php echo $contact ?>
-        </h4>
-        <h4 class="description-title" align="center">Description:</h4>
-        <div class="description-container">
-          <p class="description-text">
-            <?php echo $ground_description ?>
-          </p>
-        </div>
-      </div>
-
-      <div class="right-section" align="center">
-        <h2>Booking Details</h2>
-        <p>Select Date:</p>
-        <?php
-        // Get the current date
-        $currentDate = date('Y-m-d');
-
-        // Calculate the maximum date allowed (current date + 2 days)
-        $maxDate = date('Y-m-d', strtotime($currentDate . ' + 2 days'));
-        ?>
-        <input type="date" id="booking-date" min="<?php echo $currentDate; ?>" max="<?php echo $maxDate; ?>">
-        <button id="see-time-slots">See Time Slots</button>
-
+    <div class="left-section">
+      <img src="<?php echo $ground_image; ?>" alt="Futsal Image">
+      <h4 align="center">Location: <?php echo $ground_location; ?></h4>
+      <h4 align="center">Contact: <?php echo $contact; ?></h4>
+      <div class="description-container">
+        <p class="description-text"><?php echo $ground_description; ?></p>
       </div>
     </div>
+
+    <div class="right-section" align="center">
+      <h2>Booking Details</h2>
+      <p>Select Date:</p>
+      <?php
+      // Get the current date
+      $currentDate = date('Y-m-d');
+
+      // Calculate the maximum date allowed (current date + 2 days)
+      $maxDate = date('Y-m-d', strtotime($currentDate . ' + 2 days'));
+      ?>
+      <input type="date" id="booking-date" min="<?php echo $currentDate; ?>" max="<?php echo $maxDate; ?>" required>
+      <button id="see-time-slots" disabled>See Time Slots</button>
+      <script>
+        document.getElementById("booking-date").addEventListener("input", function () {
+          var selectedDate = document.getElementById("booking-date").value;
+          var seeTimeSlotsButton = document.getElementById("see-time-slots");
+
+          if (selectedDate >= "<?php echo $currentDate; ?>" && selectedDate <= "<?php echo $maxDate; ?>") {
+            seeTimeSlotsButton.disabled = false;
+          } else {
+            seeTimeSlotsButton.disabled = true;
+          }
+        });
+      </script>
+    </div>
+
   </div>
+  <div id="map" style="width: 100%; height: 400px;"></div>
   <script>
 
 
@@ -300,11 +240,22 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
       window.location.href = "timeslot.php?ground_id=" + groundId + "&selectedDate=" + selectedDate;
     });
   </script>
-  <div class="map" align="center">
-    <?php echo $map ?>
+
   </div>
+  <script>
+    var map = L.map('map').setView([<?php echo $latitude; ?>, <?php echo $longitude; ?>], 13);
 
 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+    L.marker([<?php echo $latitude; ?>, <?php echo $longitude; ?>]).addTo(map)
+      .bindPopup('<?php echo $ground_name; ?>')
+      .openPopup();
+  </script>
+  <?php include 'footer.php'; ?>
 </body>
 
 </html>

@@ -2,9 +2,15 @@
 <html>
 <?php
 include 'conn.php';
-session_name("player_session");
+//session_name("player_session");
 session_start();
+if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
+  header('Location: homepage.php');
+  exit;
+}
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+
   $loggedin = true;
 } else {
   $loggedin = false;
@@ -14,149 +20,139 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <head>
   <style>
-    header {
-      background-color: #f6e2e2;
-      padding: 20px;
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .title {
-      margin-right: 50px;
-      margin-left: 30px;
-      width: 50%;
-      color: rgb(7, 7, 7);
-      font-size: larger;
-    }
-
-    .title a {
-      text-decoration: none;
-      color: #000;
-    }
-
-    .welcome {
-      display: flex;
-      align-items: center;
-      background-color: grey;
-      height: 50px;
-      border-radius: 10px;
-      padding: 8px;
-    }
-
-    .welcome p {
-      margin-right: 30px;
-      margin-bottom: 20px;
-      margin-top: 20px;
-      margin-left: 20px;
-      font-size: larger;
-      font-weight: bold;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      color: white;
-    }
-
-    button.search-button {
-      border: none;
-      background-color: transparent;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
       padding: 0;
-      cursor: pointer;
-    }
-
-    button.search-button:focus {
-      outline: none;
-    }
-
-
-    .navigation {
+      color: #333;
       display: flex;
-      align-items: center;
-    }
-
-    .navigation a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    }
-
-    .dropdown a {
-      text-decoration: none;
-      color: black;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .futsal-section {
       display: flex;
       flex-wrap: wrap;
-      gap: 75px;
-      margin-top: 30px;
-
-    }
-
-    .mid {
-      margin-left: 300px;
-      width: 100%;
-      align-items: center;
-      display: flex;
-      position: relative;
-      height: 50px;
-    }
-
-    .mid img {
-      height: 20px;
-      margin-left: 8.5px;
+      gap: 30px;
+      padding: 30px;
+      justify-content: center;
+      flex: 1;
     }
 
     .futsal-box {
       width: 350px;
-      height: 500px;
-      background-color: #f9f9f9;
+      background-color: #333;
       padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .futsal-box:hover {
+      transform: translateY(-10px);
     }
 
     .futsal-box img {
       width: 100%;
-      height: 350px;
+      height: 300px;
       object-fit: cover;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      border-radius: 12px;
+      margin-bottom: 15px;
     }
 
     .futsal-box h3 {
-      font-size: 18px;
-      margin-bottom: 10px;
+      font-size: 22px;
+      margin: 0 0 12px 0;
+      color: white;
     }
 
-    .futsal-box p {
-      font-size: 14px;
-      margin-bottom: 20px;
+    .futsal-box h4 {
+      font-size: 18px;
+      margin: 0 0 12px 0;
+      color: white;
     }
 
     .futsal-box .btn-container {
       display: flex;
       justify-content: space-between;
-
     }
 
-    .futsal-box .btn-container button {
-      padding: 8px 16px;
-      font-size: 14px;
-      background-color: #333;
-      color: #fff;
+    .futsal-box button {
+      padding: 12px 18px;
+      font-size: 18px;
+      background-color: blue;
+      color: #ffffff;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .futsal-box button:hover {
+      background-color: #ff6b6b;
+    }
+
+    .hero-section {
+      background-image: url('registerimage/nearby.jpeg');
+      background-size: cover;
+      background-position: center;
+      height: 400px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .hero-section h1 {
+      font-size: 48px;
+      margin: 0;
+      z-index: 2;
+    }
+
+    .hero-section .mid {
+      position: relative;
+      z-index: 2;
+      margin-top: 20px;
+    }
+
+    .hero-section::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    .btn-containers {
+      display: flex;
+      margin-left: -320px;
 
     }
 
-    .futsal-section .futsal-box .btn-container button:hover {
-      opacity: 0.5;
+    .btn-containers button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: blue;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 10px;
     }
 
-    .footer {
+    .btn-containers button:hover {
+      background-color: #ff6b6b;
+    }
+
+    /* .footer {
       margin-top: 50px;
       background-color: rgb(211, 241, 242);
       padding: 15px;
@@ -178,127 +174,75 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
     .footer .regsiter-here button:hover {
       opacity: 0.5;
-    }
+    } */
   </style>
 </head>
 
 <header>
-  <div class="title">
-    <h1>FUTSOL</h1>
 
-  </div>
-
-  <div class="mid">
-    <form method="GET" action="search.php">
-      <input type="search" name="search" placeholder="Search By Name or Location" size="37" />
-      <button type="submit" class="search-button">
-        <img src="searchlogo.png" class="search-logo">
-      </button>
-    </form>
-  </div>
-
-  <?php
-  if (!$loggedin) {
-    echo '
-  <div class="navigation">
-    <a href="homepage.php">HOME</a>&nbsp;&nbsp;&nbsp;';
-  }
-  ?>
-  <?php
-  if (!$loggedin) {
-    echo '
-        <a href="groundlist.php">GROUNDS</a>&nbsp;&nbsp;&nbsp;
-        <a href="login.php">LOGIN</a>
-    </div>';
-  }
-  if ($loggedin) {
-    echo '
-        <div class="dropdown">
-            <img src="loginimage.png" alt="User Image" class="user-image" height="55px">
-        
-        <a href="logout.php">Logout</a>
-    </div>
-</div>';
-  }
-  ?>
-
-  <?php
-  if (isset($_SESSION['player_id'])) {
-    $player_id = $_SESSION['player_id'];
-    $sql = "SELECT * FROM player WHERE player_id = $player_id";
-    $result = mysqli_query($con, $sql);
-    if ($result) {
-      if ($row = mysqli_fetch_assoc($result)) {
-        $player_id = $row['player_id'];
-        $fullname = $row['fullname'];
-      }
-    }
-  }
-  if ($loggedin) {
-    echo '
-    <div class="welcome">';
-    if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-      // $fullname = $_SESSION['fullname'];
-      echo "<p>$fullname</p>";
-    } else {
-      header("Location: login.php");
-      exit;
-    }
-    echo '
-    </div>
-    </div>';
-  }
-  ?>
 </header>
 
-<?php
-$sql = "SELECT * FROM ground";
-$result = mysqli_query($con, $sql);
-echo '<section class="futsal-section">';
-while ($row = mysqli_fetch_assoc($result)) {
-  $ground_id = $row['ground_id'];
-  $ground_name = $row['ground_name'];
-  $ground_location = $row['ground_location'];
-  $contact = $row['contact'];
-  $ground_description = $row['ground_description'];
-  // $ground_image = $row['ground_image'];
-  $futsal_logo = $row['futsal_logo'];
-  $status = $row['status'];
-  if ($status === 'Verified') {
-    echo '
+<body>
+  <?php include 'nav.php'; ?>
+  <div class="hero-section">
+    <h1>Looking for Nearby Futsal?</h1>
+    <div class="mid">
+      <div class="btn-containers">
+        <button onclick="window.location.href='nearfutsal.php'">Click Here</button>
+      </div>
+    </div>
+  </div>
+
+  <?php
+  $sql = "SELECT * FROM ground";
+  $result = mysqli_query($con, $sql);
+  echo '<section class="futsal-section">';
+  while ($row = mysqli_fetch_assoc($result)) {
+    $ground_id = $row['ground_id'];
+    $ground_name = $row['ground_name'];
+    $ground_location = $row['ground_location'];
+    $contact = $row['contact'];
+    $ground_description = $row['ground_description'];
+    // $ground_image = $row['ground_image'];
+    $futsal_logo = $row['futsal_logo'];
+    $status = $row['status'];
+    if ($status === 'Verified') {
+      echo '
   <div class="futsal-box">
     <img src="' . $futsal_logo . '" alt="Futsal Ground" height="100px">
     <h3>' . $ground_name . '</h3>
-    <h4>Location: ' . $ground_location . '</h4>
+    <h4>' . $ground_location . '</h4>
     
     <div class="btn-container">
       <button onclick="redirectLogin(' . $ground_id . ')">Book Now</button>
       <button onclick="viewDetails(' . $ground_id . ')">View Details</button>
     </div>
   </div>';
+    }
   }
-}
-echo '</section>';
-?>
+  echo '</section>';
+  ?>
 
-<!-- </div> -->
+  <!-- </div> -->
 
-<script>
-  function redirectLogin(ground_id) {
-    <?php if ($loggedin) { ?>
-      // Redirect to the booking page with the respective ground_id
-      window.location.href = "booking.php?ground_id=" + ground_id;
-    <?php } else { ?>
-      // Redirect to the login page
-      window.location.href = "login.php";
-    <?php } ?>
-  }
+  <script>
+    function redirectLogin(ground_id) {
+      <?php if ($loggedin) { ?>
+        // Redirect to the booking page with the respective ground_id
+        window.location.href = "booking.php?ground_id=" + ground_id;
+      <?php } else { ?>
+        // Redirect to the login page
+        window.location.href = "login.php";
+      <?php } ?>
+    }
 
-  function viewDetails(ground_id) {
-    window.location.href = "futsaldetail.php?ground_id=" + ground_id;
+    function viewDetails(ground_id) {
+      console.log(ground_id);
+      window.location.href = "futsaldetail.php?ground_id=" + ground_id;
 
-  }
-</script>
+    }
+  </script>
+  <?php include 'footer.php'; ?>
 </body>
 
 </html>

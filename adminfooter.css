@@ -1,0 +1,31 @@
+.info-section {
+  background-color: #999;
+  padding: 40px 20px;
+  text-align: center;
+  margin-bottom: -100px;
+}
+
+.info-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.info-section p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto 30px;
+}
+
+.footer {
+  background-color: #282c34;
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  width: 97%;
+  margin-top: 50px;
+}

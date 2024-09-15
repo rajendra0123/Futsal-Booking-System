@@ -1,273 +1,217 @@
 <!DOCTYPE html>
 <html>
-<script src="ckeditor/ck/ckeditor.js"></script>
+<script src="ckeditor/ckeditor/ckeditor.js"></script>
 <?php
-session_name("owner_session");
-session_start();
 include 'conn.php';
+//session_name("owner_session");
+session_start();
+
+
+if (isset($_SESSION['owner_id']) && $_SESSION['loggedin'] === true) {
+} else {
+  header("Location: homepage.php");
+  exit();
+}
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
   $loggedin = true;
 } else {
   $loggedin = false;
+
 }
 ?>
+
+
 <?php
 if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
   $email = $_SESSION['email'];
   $query = "SELECT * FROM `owner` WHERE email='$email'";
   $result = mysqli_query($con, $query);
   if (!$result || mysqli_num_rows($result) == 0) {
-    header("Location: login.php");
+    header("Location: homepage.php");
     exit();
   }
   $row = mysqli_fetch_assoc($result);
   $fullname = $row['fullname'];
+  $owner_id = $row['owner_id'];
+
+
 }
 ?>
-
+<!-- Include Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <head>
-  <title>Your Webpage Title</title>
+  <title></title>
   <style>
-    .title {
-      margin-right: 50px;
-      margin-left: 30px;
-      width: 50%;
-      color: rgb(7, 7, 7);
-      font-size: larger;
-    }
-
-    header {
-      background-color: #f6e2e2;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .welcome {
-      display: flex;
-      align-items: center;
-      background-color: grey;
-      height: 50px;
-      border-radius: 10px;
-      padding: 8px;
-    }
-
-    .welcome p {
-      margin-right: 10px;
-      font-size: larger;
-      font-weight: bold;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      color: white;
-    }
-
-    .user-image {
-      height: 60px;
-      margin-right: 10px;
-    }
-
-    .header-links {
-      font-size: larger;
-      margin-left: 200px;
-      display: flex;
-    }
-
-    .header-links a {
-      text-decoration: none;
-      color: #000;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    }
-
-    .dropdown {
-
-      /* align-items: center; */
-      /* margin-right: 5px; */
-    }
-
-    .dropdown a {
-      display: flex;
-      /* align-items: center; */
-      text-decoration: none;
-      color: black;
-
-    }
-
-    .navigation {
-      display: flex;
-      align-items: center;
-    }
-
-    .navigation a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    }
-
-    .details {
-      margin-right: 20px;
-    }
-
-    .details a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    }
-
-
     .form-section {
       max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
 
     }
 
     .form-section h2 {
-      font-size: 24px;
+      font-size: 26px;
+      color: #444;
+      text-align: center;
       margin-bottom: 20px;
     }
 
-    .form-section input,
+    .form-section label {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-section input[type="text"],
+    .form-section input[type="file"],
+    .form-section input[type="number"],
     .form-section textarea {
       width: 100%;
       padding: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
       box-sizing: border-box;
+      font-size: 16px;
+
+
+    }
+
+    .form-section input[type="text"]:focus,
+    .form-section input[type="file"]:focus,
+    .form-section input[type="number"]:focus,
+    .form-section textarea:focus {
+      border-color: #333;
+    }
+
+    .form-section .btn-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .form-section .btn-container button,
+    .form-section .btn-container input[type="submit"] {
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+
     }
 
     .form-section .btn-container button {
-      padding: 8px 16px;
-      font-size: 14px;
       background-color: #333;
       color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 10px;
-
     }
 
-    .form-section .btn-container [type="submit"] {
-
-      /* justify-content: space-between; */
-      padding: 8px 16px;
-      font-size: 14px;
-      background-color: #333;
+    .form-section .btn-container input[type="submit"] {
+      background-color: blue;
       color: #fff;
-      border: none;
-      border-radius: 4px;
+      width: 120px;
+    }
+
+    .form-section .btn-container input[type="submit"]:hover {
+      background-color: #ff6b6b;
+    }
+
+    .form-section button[type="button"] {
+      background-color: blue;
+      padding: 8px;
+      color: white;
+      border-radius: 5px;
+      margin-right: 10px;
       cursor: pointer;
-      width: 100px;
-
     }
 
-    .navigation {
-      display: flex;
-      align-items: center;
-    }
-
-    .navigation a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      margin-left: 100px;
-    }
-
-    .details {
-      margin-right: 20px;
-    }
-
-    .details a {
-      text-decoration: none;
-      margin-right: 10px;
-      color: black;
-      font-size: larger;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    .form-section button[type="button"]:hover {
+      background-color: #ff6b6b;
     }
 
     .error {
       color: red;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    #mapPopup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      border-radius: 10px;
+    }
+
+    #mapPopup button {
+      padding: 10px 20px;
+      background-color: blue;
+      margin-top: 10px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .notification {
+      display: none;
+
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+
+      color: white;
+      padding: 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      font-size: 16px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification.error {
+      background-color: #f44336;
+
     }
   </style>
 </head>
+<?php
+$sql = "SELECT *FROM ground WHERE owner_id = $owner_id";
+$result = mysqli_query($con, $sql);
+
+if ($row = mysqli_fetch_assoc($result)) {
+  $ground_id = $row['ground_id'];
+  $status = $row['status'];
+
+}
+?>
 
 <body>
+  <?php include 'nav.php' ?>
+  <div id="notification" class="notification"></div>
   <header>
-    <div class="title">
-      <h1>FUTSOL
-      </h1>
-    </div>
 
-    <div class="navigation">
-      <!-- <a href="groundlist.php">BOOKNOW</a>&nbsp;&nbsp;&nbsp; -->
-      <?php
-      $sql = "SELECT * FROM ground";
-      $result = mysqli_query($con, $sql);
-      while ($row = mysqli_fetch_assoc($result)) {
-        $ground_id = $row['ground_id'];
-      }
-      echo '<a href="myground.php?ground_id=' . $ground_id . '">MYGROUND</a>&nbsp;&nbsp;&nbsp;';
-      ?>
-    </div>
-
-    <?php
-
-    if ($loggedin) {
-      $owner_id = $_SESSION['owner_id'];
-      $sql = "SELECT * FROM owner WHERE  owner_id = $owner_id";
-      $result = mysqli_query($con, $sql);
-      if ($result) {
-        if ($row = mysqli_fetch_assoc($result)) {
-          $owner_id = $row['owner_id'];
-          echo '<div class="details">
-      <a href="ownerdetails.php?owner_id=' . $owner_id . '">DETAILS</a>
-    </div>';
-        }
-      }
-
-      echo '
-    <div class="dropdown">
-      <img src="loginimage.png" alt="owner Image" class="owner-image" height="55px">
-
-      <a href="logout.php">Logout</a>
-    </div>
-    <div class="welcome">';
-      if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-        $_SESSION['email'] = $email;
-        $fullname = $_SESSION['fullname'];
-
-        echo "<p>$fullname</p>";
-      } else {
-        header("Location: login.php");
-        exit;
-      }
-      echo '
-    </div>';
-    }
-    ?>
   </header>
+
 
   <section class="form-section">
     <h2>Add Your Futsal's Details</h2>
     <form id="futsal-form" method="POST" enctype="multipart/form-data" action="">
 
-
+      <div class='error' id="logoError"></div>
       <label>Futsal Logo:</label>
       <input type="file" id="logo" name="futsal_logo">
 
+      <div class='error' id="imageError"></div>
       <label>Ground Image:</label>
-      <input type="file" id="image" name="ground_image" required>
+      <input type="file" id="image" name="ground_image">
 
       <div class='error' id="nameError"></div>
       <label>Futsal Name:</label>
@@ -277,9 +221,16 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
       <label>Location:</label>
       <input type="text" id="location" name="ground_location">
 
-      <!-- <div class='error' id="locationError"></div> -->
-      <label>Map URL:</label>
-      <input type="text" id="map" name="map">
+      <div class='error' id="latError"></div>
+      <label>Latitude:</label>
+      <input type="text" id="latitude" name="latitude" readonly>
+
+      <div class='error' id="longError"></div>
+      <label>Longitude:</label>
+      <input type="text" id="longitude" name="longitude" readonly>
+
+      <button type="button" onclick="openMapPopup()">Set on Map</button>
+      <button type="button" id="getLocationBtn">Get Current Location</button>
 
       <div class='error' id="numberError"></div>
       <label>Contact Number:</label>
@@ -289,12 +240,10 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
       <label>Amount per hour:</label>
       <input type="number" id="amount" name="amount">
 
-      <label>QR for Payment:</label>
-      <input type="file" id="qr" name="qr_code" required>
-
       <div class='error' id="descriptionError"></div>
       <label>Description:</label>
       <textarea id="description" name="ground_description" rows="4"></textarea>
+
       <div class="btn-container">
         <button type="button" onclick="cancelForm()">Cancel</button>
         <input type="submit" id="btnSubmit" value="Register" name="register">
@@ -305,19 +254,40 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
     </script>
   </section>
 
+
   <script>
     btnSubmit = document.getElementById('btnSubmit');
     btnSubmit.addEventListener('click', (event) => {
 
       const name = document.getElementById("name").value;
+      const logo = document.getElementById("logo").value;
+      const image = document.getElementById("image").value;
+      const latitude = document.getElementById("latitude").value;
+      const longitude = document.getElementById("longitude").value;
       const location = document.getElementById("location").value;
       const contact = document.getElementById("contact").value;
-      const description = document.getElementById("description").value;
+      // const description = document.getElementById("description").value;
       const amount = document.getElementById("amount").value;
 
       // Initialize CKEditor instance
       const editor = CKEDITOR.instances['description'];
       const description = editor.getData();
+
+      //logo validation
+      const logoError = document.getElementById("logoError");
+      if (logo === "") {
+        event.preventDefault();
+        logoError.textContent = "*required";
+      }
+
+      //image validation
+
+      const imageError = document.getElementById("imageError");
+      if (image === "") {
+        event.preventDefault();
+        imageError.textContent = "*required";
+      }
+
 
       // Futsal Name validation
       const nameError = document.getElementById("nameError");
@@ -341,6 +311,20 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
         locationError.textContent = "*required";
       } else {
         locationError.textContent = "";
+      }
+
+      //lat validation
+      const latError = document.getElementById("latError");
+      if (latitude === "") {
+        event.preventDefault();
+        latError.textContent = "*required";
+      }
+
+      //long validation
+      const longError = document.getElementById("longError");
+      if (longitude === "") {
+        event.preventDefault();
+        longError.textContent = "*required";
       }
 
       //Contact vlidation
@@ -383,17 +367,16 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
     });
   </script>
 
-
   <?php
   if (isset($_POST['register'])) {
     $futsal_logo = $_FILES['futsal_logo'];
     $ground_name = $_POST['ground_name'];
     $ground_location = $_POST['ground_location'];
     $contact = $_POST['contact'];
-    $qr_code = $_FILES['qr_code'];
     $ground_description = $_POST['ground_description'];
     $amount = $_POST['amount'];
-    $map = $_POST['map'];
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
     //file extension validity
     $isValid = true;
 
@@ -416,25 +399,6 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
     }
 
 
-    //for qr
-    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
-
-    $qr_code_name = $_FILES['qr_code']['name'];
-    $qr_code_tmp = $_FILES['qr_code']['tmp_name'];
-    $qr_code_folder = "registerimage/" . $qr_code_name;
-    move_uploaded_file($qr_code_tmp, $qr_code_folder);
-
-    $fileExtension = strtolower(pathinfo($qr_code_name, PATHINFO_EXTENSION));
-
-    if (!in_array($fileExtension, $allowedExtensions)) {
-      echo '<script>alert("Only JPG, JPEG, PNG,GIF and Jfif files are allowed")</script>';
-      $isValid = false;
-    } else {
-
-      move_uploaded_file($qr_code_tmp, $qr_code_folder);
-
-    }
-
     //for logo
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
 
@@ -453,44 +417,126 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
       move_uploaded_file($futsal_logo_tmp, $futsal_logo_folder);
 
     }
+    ?>
+    <?php
 
-    // Check if the owner has already added a ground
-    $sql = "SELECT * FROM ground WHERE owner_id = $owner_id";
-    $result = mysqli_query($con, $sql);
-    if ($result && mysqli_num_rows($result) > 0) {
-      echo '<script>alert("You have already added a ground");';
-      echo 'window.location.href = "futsalregister.php";</script>';
-      exit();
-    }
 
+    // // Check if the owner has already added a ground
+    // $sql = "SELECT * FROM ground WHERE owner_id = $owner_id";
+    // $result = mysqli_query($con, $sql);
+    // if ($result && mysqli_num_rows($result) > 0) {
+    //   echo '<script>alert("You have already added a ground");';
+    //   echo 'window.location.href = "futsalregister.php";</script>';
+    //   exit();
+    // }
+  
     if ($isValid) {
-      $sql = "INSERT INTO ground (futsal_logo,ground_name, ground_location, contact,amount, ground_description, ground_image, qr_code,owner_id,status)
-         VALUES (' $futsal_logo_folder','$ground_name', '$ground_location', '$contact','$amount', '$ground_description', '$ground_image_folder', '$qr_code_folder', '$owner_id','pending')";
+      $sql = "INSERT INTO ground (futsal_logo, ground_name, ground_location, ground_latitude, ground_longitude, contact, amount, ground_description, ground_image, owner_id, status)
+                VALUES ('$futsal_logo_folder', '$ground_name', '$ground_location', '$latitude', '$longitude', '$contact', '$amount', '$ground_description', '$ground_image_folder', '$owner_id', 'pending')";
 
       if (mysqli_query($con, $sql)) {
-
-        echo '<script>alert("Futsal to be added sent")</script>';
-        echo '<script>window.location.href = "futsalregister.php"</script>';
         $ground_id = mysqli_insert_id($con);
 
+        // Store the ground ID in the session
         $_SESSION['ground_id'] = $ground_id;
-        exit();
+
+        // Show alert and redirect with a slight delay to ensure alert shows
+        echo '<script>
+          document.getElementById("notification").textContent = "Futsal to be added sent";
+          document.getElementById("notification").style.display = "block";
+          setTimeout(function() {
+              document.getElementById("notification").style.display = "none";
+           
+          }, 2000); 
+        </script>';
       } else {
         echo "Error: " . mysqli_error($con);
       }
     }
   }
   ?>
+  <!-- window.location.href = "futsalregister.php"; -->
+  <div id="mapPopup" style="display:none;">
+    <div id="map" style="width: 600px; height: 400px;"></div>
+    <button onclick="confirmLocation()">Confirm Location</button>
+  </div>
 
   <script>
-    function cancelForm() {
-      // Reset the form fields
-      document.getElementById("futsal-form").reset();
+    function openMapPopup() {
+      document.getElementById('mapPopup').style.display = 'block';
+
+      // Initialize map
+      var map = L.map('map').setView([27.700769, 85.300140], 13); // Default to Kathmandu
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
+      var marker;
+
+      function onMapClick(e) {
+        if (marker) {
+          map.removeLayer(marker);
+        }
+        marker = L.marker(e.latlng).addTo(map);
+        document.getElementById('latitude').value = e.latlng.lat;
+        document.getElementById('longitude').value = e.latlng.lng;
+      }
+
+      map.on('click', onMapClick);
+    }
+
+    function confirmLocation() {
+      document.getElementById('mapPopup').style.display = 'none';
 
     }
 
+    document.getElementById('getLocationBtn').addEventListener('click', function () {
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
 
+      function showPosition(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        document.getElementById('latitude').value = latitude;
+        document.getElementById('longitude').value = longitude;
+      }
+
+      function showError(error) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+        }
+      }
+
+      getLocation();
+    });
+    // function cancelForm() {
+    //   // Reset the form fields
+    //   document.getElementById("futsal-form").reset();
+
+    // }
   </script>
+
+  <?php include 'footer.php'; ?>
+
+
 </body>
 
 </html>

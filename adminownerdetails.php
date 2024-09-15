@@ -1,50 +1,92 @@
 <!DOCTYPE html>
 <html>
 
-
 <head>
     <html>
     <?php
     include 'conn.php';
     session_start();
+    if (!isset($_SESSION['admin_id'])) {
+        header('Location: adminlogin.php');
+        exit;
+    }
     ?>
 
     <head>
         <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 0;
+                padding: 0;
+            }
+
             header {
-                background-color: #f6e2e2;
+                background-color: #343a40;
+                color: #fff;
                 padding: 20px;
-                border-radius: 5px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .title {
-                margin-right: 50px;
-                margin-left: 30px;
-                width: 50%;
-                color: rgb(7, 7, 7);
-                font-size: larger;
+                display: flex;
+                align-items: center;
+            }
+
+            .title h1 {
+                margin: 0;
+                font-size: 40px;
             }
 
             .title a {
                 text-decoration: none;
-                color: #000;
+                color: #fff;
+                margin-left: 30px;
+                font-weight: bold;
+                font-size: 20px;
             }
 
-            .left {
-                margin-left: 600px;
-            }
-
-            .home {
-                margin-top: 120px;
-            }
-
-            .home a {
+            .right a {
                 text-decoration: none;
-                color: #000;
-                font-size: large;
+                color: #fff;
+                font-weight: bold;
+                padding: 10px 20px;
+                background-color: #dc3545;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+
+            .right a:hover {
+                background-color: #c82333;
+            }
+
+            .container {
+                display: flex;
+                margin-top: 20px;
+            }
+
+            .sidebar {
+                width: 20%;
+                background-color: #fff;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar a {
+                display: block;
+                text-decoration: none;
+                color: #343a40;
+                font-weight: bold;
+                padding: 10px 0;
+                border-bottom: 1px solid #e9ecef;
+                transition: color 0.3s ease;
+            }
+
+            .sidebar a:hover {
+                color: #007bff;
             }
 
             .container {
@@ -71,10 +113,6 @@
             table {
                 width: 100%;
             }
-
-            /* .hidden {
-                display: none;
-            } */
 
             .content {
                 margin-top: 80px;
@@ -118,15 +156,7 @@
     </head>
     <header>
         <div class="title">
-
             <h1>FUTSOL</h1>
-            </a>
-            <div class="left">
-                <h1 align="center">Welcome!</h1>
-            </div>
-
-        </div>
-        <div class="home">
             <a href="adminpage.php">HOME</a>
         </div>
     </header>
@@ -205,6 +235,7 @@
     }
     ?>
     <script src="script.js"></script>
+    <?php include 'adminfooter.php' ?>
 </body>
 
 </html>

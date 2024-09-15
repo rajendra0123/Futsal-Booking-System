@@ -1,7 +1,7 @@
 <html>
 <?php
 include 'conn.php';
-session_name("owner_session");
+//session_name("owner_session");
 session_start();
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
@@ -12,199 +12,80 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <head>
     <style>
-        header {
-            background-color: #f6e2e2;
-            padding: 20px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
         }
 
-        .title {
-            margin-right: 50px;
-            margin-left: 30px;
-            width: 50%;
-            color: rgb(7, 7, 7);
-            font-size: larger;
-        }
-
-        .title a {
-            text-decoration: none;
-            color: #000;
-        }
-
-        .mid {
-            margin-left: 300px;
-            width: 100%;
-            align-items: center;
-            display: flex;
-            position: relative;
-            height: 50px;
-        }
-
-        .mid img {
-            height: 20px;
-            margin-left: 8.5px;
-        }
-
-        .welcome {
-            display: flex;
-            align-items: center;
-            background-color: grey;
-            height: 50px;
-            border-radius: 10px;
-            padding: 8px;
-        }
-
-        .welcome p {
-            margin-right: 30px;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            margin-left: 20px;
-            font-size: larger;
-            font-weight: bold;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: white;
-        }
-
-        .navigation {
-            display: flex;
-            align-items: center;
-        }
-
-        .navigation a {
-            text-decoration: none;
-            margin-right: 10px;
-            color: black;
-            font-size: larger;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        }
-
-        .dropdown a {
-            text-decoration: none;
-            color: black;
-            display: flex;
-        }
 
         .signup-form {
-            height: fit-content;
-            width: 300px;
-            margin-left: 500px;
-            margin-top: 60px;
+            background-color: #fff;
             padding: 20px;
-            background: ##fff;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 30px auto;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
 
         .signup-form h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: Arial, sans-serif;
-            font-size: 30px;
+            margin-top: 0;
+            color: #333;
+            font-size: 24px;
         }
 
-        .signup-form input[type="text"],
-        .signup-form input[type="password"],
-        .signup-form input[type="email"] {
-            width: 90%;
+
+        .signup-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .signup-form input[type="text"] {
+            width: 100%;
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid black;
-            border-radius: 5px;
-
-        }
-
-        .signup-form p {
-            margin-bottom: 10px;
-            font-family: Arial, sans-serif;
-            font-size: 17px;
-        }
-
-        .signup-form .btn-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .signup-form button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            border-radius: 3px;
-            background-color: #0077c0;
-            color: #fff;
-            cursor: pointer;
-
-
-        }
-
-        .signup-form button:hover {
-            background-color: #005e9d;
-
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
 
         .error {
-            color: red;
+            color: #e74c3c;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+
+        .btn-container {
+            text-align: center;
+        }
+
+
+        .signup-form button {
+            background-color: blue;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .signup-form button:hover {
+            background-color: #ff6b6b;
         }
     </style>
 </head>
 <header>
-    <div class="title">
 
-        <h1>FUTSOL</h1>
-
-    </div>
-
-
-
-    <div class="navigation">
-        <a href="futsalregister.php">HOME</a>&nbsp;&nbsp;&nbsp;
-        <?php
-        $owner_id = $_SESSION['owner_id'];
-        $sql = "SELECT * FROM owner WHERE owner_id = $owner_id";
-        $result = mysqli_query($con, $sql);
-        $row = mysqli_fetch_assoc($result);
-        $owner_id = $row['owner_id'];
-        $fullname = $row['fullname'];
-
-        if (!$loggedin) {
-            echo '
-        <a href="login.php">LOGIN</a>
-    </div>';
-        } else {
-            echo '
-            
-        <div class="dropdown">
-            <img src="loginimage.png" alt="owner Image" class="owner-image" height="55px">
-        
-        <a href="logout.php">Logout</a>
-    </div>';
-
-        }
-        ?>
-
-
-        <?php
-        if ($loggedin) {
-            echo '
-    <div class="welcome">';
-            if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-                // $fullname = $_SESSION['fullname'];
-                echo "<p>$fullname</p>";
-            } else {
-                header("Location: login.php");
-                exit;
-            }
-            echo '
-    </div>
-    </div>';
-        }
-        ?>
 </header>
 
 <body>
+    <?php include 'nav.php' ?>
     <?php
     // fetch the data
     $owner_id = $_GET['owner_id'];
@@ -345,7 +226,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
             $result = mysqli_query($con, $sql);
             if ($result) {
-                echo '<script>alert("Updated Successfully")</script>';
+                echo '<script>alert("Profile Updated Successfully")</script>';
                 echo '<script>window.location.href = "logout.php"</script>';
                 exit;
             } else {
@@ -353,7 +234,9 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
             }
         }
     }
+    include 'footer.php';
     ?>
+
 </body>
 
 </html>

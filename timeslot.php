@@ -1,5 +1,7 @@
 <?php
+session_start();
 include 'conn.php';
+include 'nav.php';
 
 $ground_id = $_GET['ground_id'];
 $selectedDate = $_GET['selectedDate'];
@@ -26,10 +28,36 @@ if ($result && mysqli_num_rows($result) > 0) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Slots</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            text-align: center;
+            color: #333;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -37,13 +65,14 @@ if ($result && mysqli_num_rows($result) > 0) {
 
         th,
         td {
-            padding: 8px;
+            padding: 12px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
 
         th {
             background-color: #f2f2f2;
+            color: #333;
         }
 
         .available {
@@ -54,71 +83,88 @@ if ($result && mysqli_num_rows($result) > 0) {
             color: red;
         }
 
+        .pending {
+            color: orange;
+        }
+
         .btn-pay {
-            background-color: green;
+            background-color: #4CAF50;
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-pay:hover {
+            background-color: #45a049;
+        }
+
+        .status-text {
+            display: inline-block;
+            margin-right: 10px;
         }
     </style>
-    <title>Time Slots</title>
 </head>
 
 <body>
-    <h1 align="center">Time Slots for
-        <?php echo $selectedDate; ?>
-    </h1>
+    <div class="container">
+        <h1>Time Slots for <?php echo htmlspecialchars($selectedDate); ?></h1>
+        <table>
+            <tr>
+                <th>Time Slot</th>
+                <th>Status</th>
+            </tr>
+            <?php
+            date_default_timezone_set('Asia/Kathmandu');
 
-    <table>
-        <tr>
-            <th>Time Slot</th>
-            <th>Status</th>
-        </tr>
-        <?php
-        date_default_timezone_set('Asia/Kathmandu');
+            $currentDate = date('Y-m-d');
 
-        // Get the current date in YYYY-MM-DD format
-        $currentDate = date('Y-m-d');
+            foreach ($timeSlots as $timeSlot) {
+                $isCurrentDate = ($selectedDate === $currentDate);
 
-        // Loop through each time slot
-        foreach ($timeSlots as $timeSlot) {
-            // Check if the selected date is the current date
-            $isCurrentDate = ($selectedDate === $currentDate);
-
-            $status = 'Available';
-            if ($isCurrentDate) {
-                // If the selected date is the current date, check if the time slot is in the past
-                $currentTime = date('H:i:s');
-                if ($selectedDate === $currentDate && $timeSlot < $currentTime) {
-                    $status = 'Not Available'; // Disable booking for past time slots
+                $status = 'Available';
+                if ($isCurrentDate) {
+                    $currentTime = date('H:i:s');
+                    if ($timeSlot < $currentTime) {
+                        $status = 'Not Available';
+                    }
                 }
-            }
 
-            foreach ($bookedTimeSlots as $bookedTimeSlot) {
-                if ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'Verified') {
-                    $status = 'Booked';
-                } else if ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'pending') {
-                    $status = 'Pending';
-                    break;
+                foreach ($bookedTimeSlots as $bookedTimeSlot) {
+                    if ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'Verified') {
+                        $status = 'Booked';
+                    } elseif ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'pending') {
+                        $status = 'Pending';
+                        break;
+                    }
                 }
-            }
 
-            $class = in_array($timeSlot, $bookedTimeSlots) ? 'booked' : 'available';
-            $button = '';
-            if (!in_array($timeSlot, $bookedTimeSlots) && $status === 'Available') {
-                $button = '<a class="btn-pay" href="payment.php?ground_id=' . $ground_id . '&selectedDate=' . urlencode($selectedDate) . '&selectedTimeSlot=' . urlencode($timeSlot) . '">Book Now</a>';
-            } elseif ($status === 'pending') {
-                $button = ''; // Empty button for Pending status
-            }
+                $class = '';
+                if ($status === 'Available') {
+                    $class = 'available';
+                } elseif ($status === 'Booked') {
+                    $class = 'booked';
+                } elseif ($status === 'Pending') {
+                    $class = 'pending';
+                }
 
-            echo "<tr><td>$timeSlot</td><td class=\"$class\">$status $button</td></tr>";
-        }
-        ?>
-    </table>
+                $button = '';
+                if ($status === 'Available') {
+                    $button = '<a class="btn-pay" href="payment.php?ground_id=' . $ground_id . '&selectedDate=' . urlencode($selectedDate) . '&selectedTimeSlot=' . urlencode($timeSlot) . '">Book Now</a>';
+                } elseif ($status === 'Pending') {
+                    $button = ''; // Empty button for Pending status
+                }
+
+                echo "<tr><td>$timeSlot</td><td class=\"$class\"><span class=\"status-text\">$status</span>$button</td></tr>";
+            }
+            ?>
+        </table>
+    </div>
+    <?php include 'footer.php'; ?>
 </body>
 
 </html>

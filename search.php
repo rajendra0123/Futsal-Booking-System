@@ -5,6 +5,7 @@
 include 'conn.php';
 session_name("player_session");
 session_start();
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 } else {
@@ -210,11 +211,12 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         echo '
     <script>
         function redirectLogin(ground_id) {
-            window.location.href = "login.php";
+        alert("Please login first");
+            window.location.href = "logout.php";
         }
 
         function viewDetails(ground_id) {
-            window.location.href = "login.php";
+            window.location.href = "futsaldetail.php";
         }
     </script>
 ';
