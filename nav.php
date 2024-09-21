@@ -65,6 +65,7 @@ if (isset($_SESSION['owner_id'])) {
                     } elseif ($current_page == 'ownerdetails.php') {
                         echo '<a href="futsalregister.php">HOME</a>';
                     } elseif ($current_page == 'myground.php') {
+                        echo '<a href="futsalregister.php">HOME</a>';
                     } elseif ($current_page == 'bookingtimeslots.php') {
                         echo '<a href="myground.php">My Ground</a>';
                     }

@@ -209,7 +209,7 @@ include 'conn.php';
 
             <div class='error' id="longError"></div>
             <label>Longitude:</label>
-            <input type="text" id="longitude" name="longitude" readonly value="<?php echo $ground_latitude; ?>">
+            <input type="text" id="longitude" name="longitude" readonly value="<?php echo $ground_longitude; ?>">
 
             <button type="button" onclick="openMapPopup()">Set on Map</button>
             <button type="button" id="getLocationBtn">Get Current Location</button>

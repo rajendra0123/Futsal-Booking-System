@@ -2,7 +2,7 @@
 <html>
 <?php
 include 'conn.php';
-session_name("player_session");
+//session_name("player_session");
 session_start();
 if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
     header('Location: homepage.php');

@@ -1,12 +1,18 @@
 <?php
 include 'conn.php';
 session_start();
+if (isset($_SESSION['owner_id']) && $_SESSION['loggedin'] === true) {
+} else {
+    header("Location: homepage.php");
+    exit();
+}
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 } else {
     $loggedin = false;
 }
+$owner_id = $_SESSION['owner_id'];
 
 $ground_id = $_GET['ground_id'];
 $selectedDate = $_GET['selectedDate'];
@@ -180,9 +186,10 @@ if ($result && mysqli_num_rows($result) > 0) {
                     $selectedDate = $_POST['selectedDate'];
                     $selectedTimeSlot = $_POST['selectedTimeSlot'];
                     $payment = $_POST['payment'];
+                    $player_id = $_SESSION['player_id'];
 
-                    $insertQuery = "INSERT INTO booking (ground_id, booking_date, booking_time, payment,status)
-                            VALUES ('$ground_id', '$selectedDate', '$selectedTimeSlot', '$payment', 'Verified')";
+                    $insertQuery = "INSERT INTO booking (ground_id, booking_date, booking_time, payment,status,owner_id)
+                            VALUES ('$ground_id', '$selectedDate', '$selectedTimeSlot', '$payment', 'Verified','$owner_id')";
                     $insertResult = mysqli_query($con, $insertQuery);
 
                     if ($insertResult) {

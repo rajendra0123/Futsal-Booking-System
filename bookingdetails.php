@@ -1,7 +1,14 @@
 <html>
 <?php
-session_name("owner_session");
+//session_name("owner_session");
 session_start();
+if (isset($_SESSION['owner_id']) && $_SESSION['loggedin'] === true) {
+} else {
+    header("Location: homepage.php");
+    exit();
+}
+
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 } else {
@@ -12,112 +19,36 @@ include 'conn.php';
 
 <head>
     <style>
-        header {
-            background-color: #f6e2e2;
-            padding: 20px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .title {
-            margin-right: 50px;
-            margin-left: 30px;
-            width: 50%;
-            color: rgb(7, 7, 7);
-            font-size: larger;
-        }
-
-        .title a {
-            text-decoration: none;
-            color: #000;
-        }
-
-        .mid {
-            margin-left: 300px;
-            width: 100%;
-            align-items: center;
-            display: flex;
-            position: relative;
-            height: 50px;
-        }
-
-        .mid img {
-            height: 20px;
-            margin-left: 8.5px;
-        }
-
-        .welcome {
-            display: flex;
-            align-items: center;
-            background-color: grey;
-            height: 50px;
-            border-radius: 10px;
-            padding: 8px;
-        }
-
-        .welcome p {
-
-            margin-right: 10px;
-            font-size: larger;
-            font-weight: bold;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: white;
-        }
-
-        .navigation {
-            display: flex;
-            align-items: center;
-        }
-
-        .navigation a {
-            text-decoration: none;
-            margin-right: 10px;
-            color: black;
-            font-size: larger;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        }
-
-        .dropdown {
-            margin-left: 380px;
-        }
-
-        .dropdown a {
-            display: flex;
-            text-decoration: none;
-            color: black;
-
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
 
         .container {
             display: flex;
-            margin-left: 200px;
+            justify-content: center;
+            margin: 20px;
         }
 
         .content {
-            width: 70%;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            cursor: pointer;
-            padding: 10px;
-            background-color: #f1f1f1;
-            margin-bottom: 5px;
-        }
-
-        table {
             width: 100%;
+            max-width: 1200px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
         }
 
-        .content {
-            margin-top: 80px;
-            /* margin-left: 1px; */
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
         }
 
         table {
@@ -127,194 +58,191 @@ include 'conn.php';
 
         th,
         td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+        }
+
+        tr:hover {
+            background-color: #ddd;
         }
 
         input[type="submit"] {
-            background-color: red;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         input[type="submit"]:hover {
-            background-color: black;
+            background-color: #45a049;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btns form {
+            margin: 0;
+        }
+
+        .action-btns input[type="submit"] {
+            background-color: #f44336;
+        }
+
+        .action-btns input[type="submit"]:hover {
+            background-color: #e53935;
+        }
+
+        .action-btns .verify-btn {
+            background-color: #4CAF50;
+        }
+
+        .action-btns .verify-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <header>
-    <div class="title">
-        <h1>FUTSOL</h1>
-        </a>
-    </div>
-    <div class="dropdown">
-        <img src="loginimage.png" alt="owner Image" class="owner-image" height="55px">
-
-        <a href="logout.php">Logout</a>
-    </div>
-    </div>
-
-
-
-    <?php
-    $owner_id = $_SESSION['owner_id'];
-    $sql = "SELECT * FROM owner WHERE owner_id = $owner_id";
-    $result = mysqli_query($con, $sql);
-    $row = mysqli_fetch_assoc($result);
-    $owner_id = $row['owner_id'];
-    $fullname = $row['fullname'];
-    if ($loggedin) {
-        echo '
-    <div class="welcome">';
-        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-            // $fullname = $_SESSION['fullname'];
-            echo "<p>$fullname</p>";
-        } else {
-            header("Location: login.php");
-            exit;
-        }
-        echo '
-    </div>
-    </div>';
-    }
-    ?>
 
 </header>
+<?php include 'nav.php'; ?>
 
 <body>
 
 
     <div class="container">
         <div class="content">
-
-            <h3 align="center">Booking Details</h3>
-            <table id="table-player" class="hidden">
+            <h3>Booking Details</h3>
+            <table id="table-player">
                 <thead>
                     <tr>
                         <th>Full Name</th>
                         <th>Contact</th>
-                        <th>Payment Screenshot</th>
                         <th>Booking Date</th>
                         <th>Booking Time</th>
-                        <th>Verify</th>
-                        <th>Delete</th>
-                        <!-- <th>Revenue</th> -->
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    if ($loggedin) {
-                        $owner_id = $_SESSION['owner_id'];
-                        $sql = "SELECT p.fullname, p.email, p.contact, b.booking_id, b.ground_id, b.booking_date, b.booking_time, b.payment, b.status
-                FROM player p
-                JOIN booking b ON p.player_id = b.player_id
-                WHERE b.owner_id = $owner_id";
+                    $owner_id = $_SESSION['owner_id'];
+                    $sql = "SELECT p.fullname, p.email, p.contact, b.booking_id, b.ground_id, b.booking_date, b.booking_time, b.payment, b.status
+                    FROM booking b
+                    LEFT JOIN player p ON p.player_id = b.player_id
+                    WHERE b.owner_id = $owner_id";
 
-                        $result = mysqli_query($con, $sql);
-                        if ($result) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $fullName = $row['fullname'];
-                                $contact = $row['contact'];
-                                $payment = $row['payment'];
-                                $booking_time = $row['booking_time'];
-                                $booking_date = $row['booking_date'];
-                                $status = $row['status'];
+                    $result = mysqli_query($con, $sql);
+                    if ($result) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $fullName = $row['fullname'] ? $row['fullname'] : 'N/A';
+                            $contact = $row['contact'] ? $row['contact'] : 'N/A';
+                            $amount = $row['payment'] ? $row['payment'] : 'N/A';
+                            $booking_id = $row['booking_id'];
+                            $booking_time = $row['booking_time'];
+                            $booking_date = $row['booking_date'];
+                            $status = $row['status'];
 
+                            echo '
+                            <tr>
+                                <td>' . $fullName . '</td>
+                                <td>' . $contact . '</td>
+                                <td>' . $booking_date . '</td>
+                                <td>' . $booking_time . '</td>
+                                <td>' . $amount . '</td>
+                                <td>';
+
+                            if ($status === 'Verified') {
+                                echo 'Verified';
+                            } else {
                                 echo '
-                <tr>
-                    <td>' . $fullName . '</td>
-                    <td>' . $contact . '</td>
-                    <td><img src="' . $payment . '" height="100px" width="120px"></td>
-                    <td>' . $booking_date . '</td>
-                    <td>' . $booking_time . '</td>
-                    <td>';
+                                <form method="POST" class="action-btns" action="bookingdetails.php>
+                                    <input type="hidden" name="booking_id" value="' . $booking_id . '">';
 
-                                if ($status === 'Verified') {
-                                    echo 'Verified';
+
+                                if ($status === 'pending') {
+                                    echo '<input type="submit" value="Verify" name="verify" class="verify-btn">';
                                 } else {
-                                    echo '
-                        <form method="POST">
-                            <input type="hidden" name="booking_id" value="' . $row['booking_id'] . '">';
-
-                                    if ($status === 'pending') {
-                                        echo '
-                            <input type="submit" value="Verify" name="verify">';
-                                    } else {
-                                        echo '
-                            <input type="submit" value="Verify" name="verify" disabled>';
-                                    }
-
-                                    echo '
-                        </form>';
+                                    echo '<input type="submit" value="Verify" name="verify" disabled class="verify-btn">';
                                 }
 
                                 echo '
-                    </td>
-                    <td>
-                        <form method="POST">
-                            <input type="hidden" name="booking_id" value="' . $row['booking_id'] . '">
-                            <input type="submit" value="Delete" name="delete">
-                        </form>
-                    </td>
-                </tr>';
+                                </form>';
                             }
-                        } else {
-                            // Display an error message if the query execution fails
-                            echo "Error: " . mysqli_error($con);
+
+                            echo '
+                                </td>
+                                <td class="action-btns">
+                                    <form method="POST" action="bookingdetails.php>
+                                        <input type="hidden" name="booking_id" value="' . $booking_id . '">
+                                        <input type="submit" value="Delete" name="delete">
+                                    </form>
+                                </td>
+                            </tr>';
                         }
                     } else {
-                        header("Location: login.php");
-                        exit;
-                    }
-                    ?>
-                    <?php
-                    if (isset($_POST['verify'])) {
-                        $booking_id = $_POST['booking_id'];
-
-                        // Perform the verification logic here
-                    
-                        // Update the booking status to "Verified" in the database
-                        $updateQuery = "UPDATE booking SET status = 'Verified' WHERE booking_id = $booking_id";
-                        $updateResult = mysqli_query($con, $updateQuery);
-
-                        if ($updateResult) {
-                            // Show the confirmation message
-                            echo '<script>alert("Booking verified successfully");</script>';
-                            echo '<script>window.location.href = "bookingdetails.php"</script>';
-                        } else {
-                            // Show the error message if the update fails
-                            echo '<script>alert("Failed to verify booking: ' . mysqli_error($con) . '");</script>';
-                        }
-                    }
-
-                    if (isset($_POST['delete'])) {
-                        $booking_id = $_POST['booking_id'];
-
-                        // Delete the booking from the database
-                        $deleteQuery = "DELETE FROM booking WHERE booking_id = $booking_id";
-                        $deleteResult = mysqli_query($con, $deleteQuery);
-
-                        if ($deleteResult) {
-                            // Show the confirmation message
-                            echo '<script>alert("Booking deleted successfully");</script>';
-                            echo '<script>window.location.href = "bookingdetails.php"</script>';
-                        } else {
-                            // Show the error message if the deletion fails
-                            echo '<script>alert("Failed to delete booking: ' . mysqli_error($con) . '");</script>';
-                        }
+                        echo "Error: " . mysqli_error($con);
                     }
                     ?>
                 </tbody>
             </table>
         </div>
     </div>
+    <?php
+    if (isset($_POST['verify'])) {
+        var_dump($_POST);
+        $booking_id = $_POST['booking_id'];
+
+        // Update the booking status to "Verified" in the database
+        $updateQuery = "UPDATE booking SET status = 'Verified' WHERE booking_id = $booking_id";
+        $updateResult = mysqli_query($con, $updateQuery);
+
+        if ($updateResult) {
+            // Show the confirmation message
+            echo '<script>alert("Booking verified successfully");</script>';
+            echo '<script>window.location.href = "bookingdetails.php"</script>';
+        } else {
+            // Show the error message if the update fails
+            echo '<script>alert("Failed to verify booking: ' . mysqli_error($con) . '");</script>';
+        }
+    }
+
+
+    if (isset($_POST['delete'])) {
+        $booking_id = $_POST['booking_id'];
+
+        // Delete the booking from the database
+        $deleteQuery = "DELETE FROM booking WHERE booking_id = $booking_id";
+        $deleteResult = mysqli_query($con, $deleteQuery);
+
+        if ($deleteResult) {
+            // Show the confirmation message
+            echo '<script>alert("Booking deleted successfully");</script>';
+            echo '<script>window.location.href = "bookingdetails.php"</script>';
+        } else {
+            // Show the error message if the deletion fails
+            echo '<script>alert("Failed to delete booking: ' . mysqli_error($con) . '");</script>';
+        }
+    }
+
+    ?>
+    </tbody>
+    </table>
+    </div>
+    </div>
+    <?php include 'footer.php'; ?>
 </body>
 
 </html>

@@ -4,6 +4,13 @@
 session_start();
 include 'conn.php';
 
+if (isset($_SESSION['owner_id']) && $_SESSION['loggedin'] === true) {
+} else {
+    header("Location: homepage.php");
+    exit();
+}
+
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 } else {

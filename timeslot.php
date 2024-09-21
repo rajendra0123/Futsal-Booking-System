@@ -107,8 +107,66 @@ if ($result && mysqli_num_rows($result) > 0) {
             display: inline-block;
             margin-right: 10px;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .confirm-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 10px;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 10px;
+        }
     </style>
 </head>
+<script src="https://khalti.com/static/khalti-checkout.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 
 <body>
     <div class="container">
@@ -154,7 +212,8 @@ if ($result && mysqli_num_rows($result) > 0) {
 
                 $button = '';
                 if ($status === 'Available') {
-                    $button = '<a class="btn-pay" href="payment.php?ground_id=' . $ground_id . '&selectedDate=' . urlencode($selectedDate) . '&selectedTimeSlot=' . urlencode($timeSlot) . '">Book Now</a>';
+
+                    $button = '<a class="btn-pay" href="#" onclick="showModal(\'' . $ground_id . '\', \'' . urlencode($selectedDate) . '\', \'' . urlencode($timeSlot) . '\')">Book Now</a>';
                 } elseif ($status === 'Pending') {
                     $button = ''; // Empty button for Pending status
                 }
@@ -164,6 +223,59 @@ if ($result && mysqli_num_rows($result) > 0) {
             ?>
         </table>
     </div>
+
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Confirm Booking</h2>
+            <p>Do you want to proceed with advance booking via Khalti?</p>
+            <form id="bookingForm" method="POST" action="pay.php">
+                <input type="hidden" name="ground_id" id="modalGroundId">
+                <input type="hidden" name="selectedDate" id="modalSelectedDate">
+                <input type="hidden" name="selectedTimeSlot" id="modalSelectedTimeSlot">
+                <button type="submit" class="confirm-btn">Pay with Khalti</button>
+                <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // Modal functionality
+        function showModal(groundId, selectedDate, selectedTimeSlot) {
+            var modal = document.getElementById('bookingModal');
+            modal.style.display = 'block';
+
+            // Set form values
+            document.getElementById('modalGroundId').value = groundId;
+            document.getElementById('modalSelectedDate').value = selectedDate;
+            document.getElementById('modalSelectedTimeSlot').value = selectedTimeSlot;
+
+            // Store booking details in session
+            $.ajax({
+                url: 'store_booking_detail.php',
+                type: 'POST',
+                data: {
+                    ground_id: groundId,
+                    selectedDate: selectedDate,
+                    selectedTimeSlot: selectedTimeSlot
+                },
+                success: function (response) {
+                    console.log('Booking details stored in session');
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error storing booking details: ' + error);
+                }
+            });
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('bookingModal');
+            modal.style.display = 'none';
+        }
+    </script>
+
     <?php include 'footer.php'; ?>
 </body>
 
