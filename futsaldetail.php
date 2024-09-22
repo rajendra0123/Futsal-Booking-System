@@ -150,7 +150,7 @@ include 'nav.php'; // Ensure the nav bar reflects the logged-in status
 
         document.getElementById('login-button')?.addEventListener('click', function () {
             alert('Please login first.');
-            window.location.href = "homepage.php";
+            // window.location.href = "homepage.php";
         });
 
         var map = L.map('map').setView([<?php echo $latitude; ?>, <?php echo $longitude; ?>], 13);

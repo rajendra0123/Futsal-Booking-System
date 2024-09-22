@@ -597,7 +597,6 @@ if (isset($_POST['login'])) {
     }
     echo '</section>';
     ?>
-    <!-- View Details redirect -->
 
     <script>
         function viewDetails(ground_id) {
@@ -609,7 +608,7 @@ if (isset($_POST['login'])) {
     <script>
         function redirectLogin() {
             alert("Please Login First");
-            window.location.href = ("homepage.php");
+            // window.location.href = ("homepage.php");
 
         }
     </script>
