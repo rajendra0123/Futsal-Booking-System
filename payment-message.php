@@ -16,7 +16,6 @@ $row = $result->fetch_assoc();
 
 $pidx = $_GET['pidx'] ?? null;
 
-
 if ($pidx) {
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -49,84 +48,32 @@ if ($pidx) {
                 $owner_id = $row['owner_id'];
                 $payment = 200;
 
-
                 // Insert booking into the database
                 $query = "INSERT INTO booking (ground_id, booking_date, booking_time, player_id, payment, status, owner_id) 
                 VALUES (?, ?, ?, ?, ?, 'Pending', ?)";
                 $stmt = $con->prepare($query);
                 $stmt->bind_param("issisi", $ground_id, $selectedDate, $selectedTimeSlot, $player_id, $payment, $owner_id);
 
-
                 if ($stmt->execute()) {
-                    $_SESSION['transaction_msg'] = '<script>
-                        Swal.fire({
-                            icon: "success",
-                            title: "Transaction successful.",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    </script>';
+                    $_SESSION['transaction_msg'] = 'Transaction successful.';
+                    $stmt->close();
+                    header('Location: payment-success.php'); // Redirect to success page
+                    exit();
                 } else {
                     echo "Error: " . $stmt->error;
                 }
-                $stmt->close();
                 break;
 
             case 'Expired':
             case 'User canceled':
             default:
-                $_SESSION['transaction_msg'] = '<script>
-                    Swal.fire({
-                        icon: "error",
-                        title: "Transaction failed.",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                </script>';
-                break;
+                $_SESSION['transaction_msg'] = 'Transaction failed.';
+                header('Location: payment-failed.php'); // Redirect to failure page
+                exit();
+            // break;
         }
     }
 } else {
     echo "pidx is missing.";
 }
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Status</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-
-<body>
-    <?php
-    if (isset($_SESSION['transaction_msg'])) {
-        echo $_SESSION['transaction_msg'];
-        unset($_SESSION['transaction_msg']);
-    }
-    ?>
-
-    <div class="mt-5 d-flex justify-content-center">
-        <div class="mb-3">
-            <img src="payment-success.jpg" class="img-fluid" alt="">
-            <div class="card">
-                <div class="card-body text-white bg-success">
-                    <h5 class="card-title">Dear Player,</h5>
-                    <p class="card-text">
-                        Your Payment status is being processed. Thank you for Booking!
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <a href="mybooking.php" class="btn btn-primary">See Booking Detail</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body>
-
-</html>

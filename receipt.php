@@ -3,21 +3,75 @@
 <?php
 include 'conn.php';
 session_start();
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-    $loggedin = true;
-} else {
-    $loggedin = false;
+if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
+    header('Location: homepage.php');
+    exit;
 }
+
 function generateReceiptNumber()
 {
-    $receiptNumber = rand(1000, 9999);
-
-    return $receiptNumber;
+    return rand(1000, 9999);
 }
 
+if (isset($_POST['receipt'])) {
+    require('fpdf.php'); // Include the FPDF library
 
+    $ground_id = $_SESSION['ground_id'];
+    $player_id = $_SESSION['player_id'];
+
+    // Fetch ground details
+    $groundQuery = "SELECT ground_name, amount, ground_location, futsal_logo, contact FROM ground WHERE ground_id = ?";
+    $stmt = $con->prepare($groundQuery);
+    $stmt->bind_param("i", $ground_id);
+    $stmt->execute();
+    $groundResult = $stmt->get_result();
+    $ground = $groundResult->fetch_assoc();
+
+    // Fetch booking details
+    $bookingQuery = "SELECT payment FROM booking WHERE player_id = ? AND ground_id = ? ORDER BY booking_id DESC LIMIT 1";
+    $stmt = $con->prepare($bookingQuery);
+    $stmt->bind_param("ii", $player_id, $ground_id);
+    $stmt->execute();
+    $bookingResult = $stmt->get_result();
+    $booking = $bookingResult->fetch_assoc();
+
+    $advance_payment = $booking['payment'] ?? 0;
+    $total_amount = $ground['amount'] ?? 0;
+    $remaining_payable = $total_amount - $advance_payment;
+
+    $receipt = generateReceiptNumber();
+    // Create a PDF document
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+
+    $logoPath = htmlspecialchars($ground['futsal_logo']);
+    $pdf->Image($logoPath, 75, 40, 130);
+
+    $pdf->Cell(0, 10, 'RECEIPT DETAILS', 0, 1, 'C');
+    $pdf->Ln(10);
+
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(0, 10, 'Receipt Number: ' . $receipt, 0, 1);
+    $pdf->Cell(0, 10, 'Futsal Name: ' . htmlspecialchars($ground['ground_name']), 0, 1);
+    $pdf->Cell(0, 10, 'Player Email: ' . htmlspecialchars($_SESSION['email']), 0, 1);
+    $pdf->Cell(0, 10, 'Booking Date: ' . htmlspecialchars($_POST['booking_date']), 0, 1);
+    $pdf->Cell(0, 10, 'Booking Time: ' . htmlspecialchars($_POST['booking_time']), 0, 1);
+    $pdf->Cell(0, 10, 'Ground Location: ' . htmlspecialchars($ground['ground_location']), 0, 1);
+    $pdf->Cell(0, 10, 'Contact: ' . htmlspecialchars($ground['contact']), 0, 1);
+    $pdf->Cell(0, 10, 'Total Amount: ' . htmlspecialchars($total_amount), 0, 1);
+    $pdf->Cell(0, 10, 'Advance Payment: ' . htmlspecialchars($advance_payment), 0, 1);
+    $pdf->Cell(0, 10, 'Remaining Payable: ' . htmlspecialchars($remaining_payable), 0, 1);
+    $pdf->Ln(10);
+    $pdf->Cell(0, 10, 'Thank you for your booking!', 0, 1, 'C');
+
+    // Output the PDF
+    ob_end_clean(); // Clean the output buffer
+    $pdf->Output('D', 'Receipt_' . $receipt . '.pdf'); // Force download the PDF
+    exit; // Stop further execution
+
+}
 ?>
-
 
 <head>
     <style>
@@ -33,108 +87,17 @@ function generateReceiptNumber()
             font-size: larger;
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         }
-
-        .receipt-container {
-            margin-top: 50px;
-            max-width: 500px;
-            margin-left: 400px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: Arial, sans-serif;
-        }
-
-        .receipt-header {
-            margin-top: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .receipt-title {
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .receipt-details {
-            margin-bottom: 20px;
-        }
-
-        .receipt-label {
-            display: inline-block;
-            width: 150px;
-            font-weight: bold;
-        }
-
-        .receipt-value {
-            display: inline-block;
-        }
-
-        .receipt-footer {
-            text-align: center;
-            margin-top: 20px;
-        }
     </style>
-
 </head>
-<div class="navigation">
-    <a href="playerhomepage.php">HOME</a>
-</div>
 
 <body>
-    <?php
-    if (isset($_POST['receipt'])) {
-        $ground_name = $_POST['ground_name'];
-        $email = $_POST['email'];
-        $booking_date = $_POST['booking_date'];
-        $booking_time = $_POST['booking_time'];
-        $ground_location = $_POST['ground_location'];
-        $contact = $_POST['contact'];
-        $amount = $_POST['amount'];
-        $receipt = generateReceiptNumber();
-        echo '
-            <div class="receipt-container">
-        <div class="receipt-header">
-            <div class="receipt-title">Receipt Details</div>
-        </div>
-        <div class="receipt-details">
-        <div class="receipt-label">Receipt Number:</div>
-        <div class="receipt-value"> ' . $receipt . '</div>
+    <div class="navigation">
+        <a href="playerhomepage.php">HOME</a>
     </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Futsal Name:</div>
-            <div class="receipt-value"> ' . $ground_name . '</div>
-        </div>
-        <div class="receipt-details">
-        <div class="receipt-label">Player Email:</div>
-        <div class="receipt-value"> ' . $email . '</div>
-    </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Booking Date:</div>
-            <div class="receipt-value">' . $booking_date . '</div>
-        </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Booking Time:</div>
-            <div class="receipt-value">' . $booking_time . '</div>
-        </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Ground Location:</div>
-            <div class="receipt-value">' . $ground_location . '</div>
-        </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Contact:</div>
-            <div class="receipt-value">' . $contact . '</div>
-        </div>
-        <div class="receipt-details">
-            <div class="receipt-label">Total Amount:</div>
-            <div class="receipt-value">' . $amount . '</div>
-        </div>
-        <div class="receipt-footer">
-            Thank you for your booking! Kindly Screenshot it.
-        </div>
-    </div>';
-    }
-    ?>
+    <form method="POST">
+        <input type="hidden" name="receipt" value="receipt">
+        <input type="submit" value="Download Receipt">
+    </form>
 </body>
 
 </html>

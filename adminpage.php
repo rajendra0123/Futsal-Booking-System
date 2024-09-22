@@ -296,7 +296,7 @@
         </table>
       </div>
     </div>
-    <?php include 'adminfooter.php'; ?>
+ <?php include 'adminfooter.php'; ?>
 </body>
 
 </html>

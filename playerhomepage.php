@@ -10,15 +10,6 @@ if (!isset($_SESSION['player_id']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-
-// // 
-// // session_start();
-// if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-//     header("Location: homepage.php");
-//     exit();
-// }
-
-
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 
