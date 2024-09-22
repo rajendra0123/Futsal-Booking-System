@@ -2,9 +2,7 @@
 <html>
 
 <?php include 'conn.php';
-//session_name("player_session");
 session_start();
-//signup php
 $signupResult = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
@@ -39,14 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
 }
 
 
-
-// if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-//     header("Location: homepage.php");
-//     $loggedin = true;
-// } else {
-//     $loggedin = false;
-// }
-
 ?>
 
 <!-- login php -->
@@ -60,17 +50,7 @@ if (isset($_POST['login'])) {
     $role = $_POST['user_type'];
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
-    //$role = $_POST['role'];
 
-    // Set a unique session name based on the role
-    if ($role === 'player') {
-        session_name("player_session");
-    } elseif ($role === 'owner') {
-        session_name("owner_session");
-    }
-    //session_start();
-
-    // Determine the role
     if ($role == 'player') {
         // Perform database query for player table
         $playerQuery = "SELECT * FROM player WHERE email = '$email'";

@@ -65,62 +65,26 @@
 
             .container {
                 display: flex;
+                justify-content: center;
                 margin-top: 20px;
             }
 
-            .sidebar {
-                width: 20%;
-                background-color: #fff;
+            .content {
+                width: 90%;
+                max-width: 1200px;
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 padding: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-top: 20px;
             }
 
-            .sidebar a {
-                display: block;
-                text-decoration: none;
-                color: #343a40;
-                font-weight: bold;
-                padding: 10px 0;
-                border-bottom: 1px solid #e9ecef;
-                transition: color 0.3s ease;
-            }
-
-            .sidebar a:hover {
-                color: #007bff;
-            }
-
-            .container {
-                display: flex;
-                margin-left: 300px;
-            }
-
-            .content {
-                width: 70%;
-            }
-
-            ul {
-                list-style-type: none;
-                padding: 0;
-            }
-
-            li {
-                cursor: pointer;
-                padding: 10px;
-                background-color: #f1f1f1;
-                margin-bottom: 5px;
-            }
-
-            table {
-                width: 100%;
-            }
-
-            /* .hidden {
-                display: none;
-            } */
-
-            .content {
-                margin-top: 80px;
-                margin-left: 50px;
+            h3 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 24px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             }
 
             table {
@@ -130,37 +94,63 @@
 
             th,
             td {
-                padding: 8px;
+                padding: 15px 20px;
                 text-align: left;
                 border-bottom: 1px solid #ddd;
             }
 
             th {
-                background-color: #f2f2f2;
+                background-color: #4CAF50;
+                color: white;
+                font-size: 18px;
             }
 
-            form {
-                display: inline-block;
-                margin: 0;
-                padding: 0;
+            tr:hover {
+                background-color: #f1f1f1;
             }
 
             input[type="submit"] {
-                background-color: red;
+                background-color: #4CAF50;
                 color: white;
                 border: none;
-                padding: 5px 10px;
+                padding: 8px 15px;
                 cursor: pointer;
+                border-radius: 4px;
+                font-size: 14px;
             }
 
             input[type="submit"]:hover {
-                background-color: black;
+                background-color: #45a049;
+            }
+
+            .action-btns {
+                display: flex;
+                gap: 5px;
+            }
+
+            .action-btns form {
+                margin: 0;
+            }
+
+            .action-btns input[type="submit"] {
+                background-color: #f44336;
+            }
+
+            .action-btns input[type="submit"]:hover {
+                background-color: #e53935;
+            }
+
+            .action-btns .verify-btn {
+                background-color: #4CAF50;
+            }
+
+            .action-btns .verify-btn:hover {
+                background-color: #45a049;
             }
         </style>
     </head>
     <header>
         <div class="title">
-
             <h1>FUTSOL</h1>
             <a href="adminpage.php">HOME</a>
         </div>
@@ -175,7 +165,7 @@
             <div class="content">
                 <!-- Owner table -->
                 <h3 align="center">Booking Details</h3>
-                <table id="table-owner" class="hidden">
+                <table id="table-owner">
                     <thead>
                         <tr>
                             <th>Booking ID</th>
@@ -188,10 +178,10 @@
                     <tbody>
                         <?php
                         $sql = "SELECT b.booking_id, b.ground_id, b.player_id,
-                         g.ground_name, b.booking_date, b.booking_time,p.fullname
-        FROM booking b
-        JOIN ground g ON b.ground_id = g.ground_id
-        JOIN player p ON b.player_id = p.player_id";
+                         g.ground_name, b.booking_date, b.booking_time, p.fullname
+                         FROM booking b
+                         JOIN ground g ON b.ground_id = g.ground_id
+                         JOIN player p ON b.player_id = p.player_id";
 
                         $result = mysqli_query($con, $sql);
                         if ($result) {
@@ -203,13 +193,13 @@
                                 $bookingTime = $row['booking_time'];
 
                                 echo '
-        <tr>
-            <td>' . $bookingID . '</td>
-            <td>' . $fullname . '</td>
-            <td>' . $futsalName . '</td>
-            <td>' . $bookingDate . '</td>
-            <td>' . $bookingTime . '</td>
-        </tr>';
+                                <tr>
+                                    <td>' . $bookingID . '</td>
+                                    <td>' . $fullname . '</td>
+                                    <td>' . $futsalName . '</td>
+                                    <td>' . $bookingDate . '</td>
+                                    <td>' . $bookingTime . '</td>
+                                </tr>';
                             }
                         } else {
                             // Display an error message if the query execution fails

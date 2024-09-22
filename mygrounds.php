@@ -68,29 +68,32 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
             align-items: center;
         }
 
-        .logo-image-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 20px;
-            gap: 20px;
-        }
-
         .futsal-logo {
-            width: 30%;
-            height: auto;
-            max-height: 700px;
+            width: 100%;
+            max-width: 300px;
+            height: 280px;
             border-radius: 5px;
-            margin-left: -300px;
         }
 
         .ground-image {
-            width: 200%;
-            height: 450px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-right: -300px;
+            width: 800px;
+            height: 300px;
+            border-radius: 5px;
+        }
+
+        .logo-image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            width: 800px;
+
+        }
+
+        .ground-image {
+            margin-right: 0;
+
         }
 
         .map-container {

@@ -110,13 +110,36 @@
                 margin-bottom: 5px;
             }
 
-            table {
-                width: 100%;
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            .container {
+                display: flex;
+                justify-content: center;
+                margin: 20px;
             }
 
             .content {
-                margin-top: 80px;
-                /* margin-left: 50px; */
+                width: 100%;
+                max-width: 1200px;
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            h3 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 24px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
             }
 
             table {
@@ -126,31 +149,58 @@
 
             th,
             td {
-                padding: 8px;
+                padding: 12px;
                 text-align: left;
                 border-bottom: 1px solid #ddd;
             }
 
             th {
-                background-color: #f2f2f2;
+                background-color: #4CAF50;
+                color: white;
+                font-size: 18px;
             }
 
-            form {
-                display: inline-block;
-                margin: 0;
-                padding: 0;
+            tr:hover {
+                background-color: #ddd;
             }
 
             input[type="submit"] {
-                background-color: red;
+                background-color: #4CAF50;
                 color: white;
                 border: none;
-                padding: 5px 10px;
+                padding: 8px 15px;
                 cursor: pointer;
+                border-radius: 4px;
+                font-size: 14px;
             }
 
             input[type="submit"]:hover {
-                background-color: black;
+                background-color: #45a049;
+            }
+
+            .action-btns {
+                display: flex;
+                gap: 5px;
+            }
+
+            .action-btns form {
+                margin: 0;
+            }
+
+            .action-btns input[type="submit"] {
+                background-color: #f44336;
+            }
+
+            .action-btns input[type="submit"]:hover {
+                background-color: #e53935;
+            }
+
+            .action-btns .verify-btn {
+                background-color: #4CAF50;
+            }
+
+            .action-btns .verify-btn:hover {
+                background-color: #45a049;
             }
         </style>
     </head>
@@ -169,7 +219,6 @@
         ?>
 
         <div class="container">
-
             <div class="content">
                 <!-- Owner table -->
                 <h3 align="center">Owner Details</h3>
@@ -180,13 +229,12 @@
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Contact</th>
-
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        // Fetch owner data with role "owner" from the database
+                        // Fetch owner data from the database
                         $sql = "SELECT * FROM owner";
                         $result = mysqli_query($con, $sql);
                         if ($result) {
@@ -197,29 +245,33 @@
                                 $contact = $row['contact'];
 
                                 echo '
-                            <form method="POST">  
-                                <tr>
-                                    <td>' . $owner_id . '</td>
-                                    <td>' . $fullName . '</td>
-                                    <td>' . $email . '</td>
-                                    <td>' . $contact . '</td>
-                                   
-                                    <td> <input type="submit" value="delete" name="delete"/></td>
-                                </tr>
-                            </form>';
+                        <tr>
+                            <td>' . $owner_id . '</td>
+                            <td>' . $fullName . '</td>
+                            <td>' . $email . '</td>
+                            <td>' . $contact . '</td>
+                            <td>
+                                <form method="POST">
+                                    <input type="hidden" name="owner_id" value="' . $owner_id . '"/>
+                                    <input type="submit" value="Delete" name="delete" />
+                                </form>
+                            </td>
+                        </tr>';
                             }
                         } else {
-                            // Display an error message if the query execution fails
                             echo "Error: " . mysqli_error($con);
                         }
 
+                        // Handle delete request
                         if (isset($_POST['delete'])) {
+                            $owner_id_to_delete = $_POST['owner_id'];
+
                             // Perform the deletion query
-                            $deleteQuery = "DELETE FROM `owner` WHERE owner_id='$owner_id'";
+                            $deleteQuery = "DELETE FROM `owner` WHERE owner_id='$owner_id_to_delete'";
                             $deleteResult = mysqli_query($con, $deleteQuery);
 
                             if ($deleteResult) {
-                                echo '<script>alert("owner deleted successfully")</script>';
+                                echo '<script>alert("Owner deleted successfully")</script>';
                                 echo '<script>window.location.href = "adminownerdetails.php"</script>';
                                 exit;
                             } else {
@@ -231,11 +283,12 @@
                 </table>
             </div>
         </div>
+
         <?php
     }
     ?>
-    <script src="script.js"></script>
-    <?php include 'adminfooter.php' ?>
+
+
 </body>
 
 </html>
