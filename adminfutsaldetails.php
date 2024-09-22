@@ -82,25 +82,58 @@
 
         th,
         td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+        }
+
+        tr:hover {
+            background-color: #ddd;
         }
 
         input[type="submit"] {
-            background-color: red;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         input[type="submit"]:hover {
-            background-color: black;
+            background-color: #45a049;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btns form {
+            margin: 0;
+        }
+
+        .action-btns input[type="submit"] {
+            background-color: #f44336;
+        }
+
+        .action-btns input[type="submit"]:hover {
+            background-color: #e53935;
+        }
+
+        .action-btns .verify-btn {
+            background-color: #4CAF50;
+        }
+
+        .action-btns .verify-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>

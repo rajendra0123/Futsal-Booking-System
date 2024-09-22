@@ -1,14 +1,25 @@
 <?php
 session_start();
 include 'conn.php'; // Include your database connection file
+if (!isset($_SESSION['ground_id'], $_SESSION['player_id'], $_SESSION['selectedDate'], $_SESSION['selectedTimeSlot'])) {
+    die("Required session variables are not set.");
+}
 
 $ground_id = $_SESSION['ground_id'];
-$query = "SELECT owner_id FROM ground WHERE ground_id = $ground_id";
-$result = mysqli_query($con, $query);
-$row = mysqli_fetch_assoc($result);
+$query = "SELECT owner_id FROM ground WHERE ground_id = ?";
+$stmt = $con->prepare($query);
+$stmt->bind_param("i", $ground_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
 
-// Get the pidx from the URL
+
 $pidx = $_GET['pidx'] ?? null;
+if (!$pidx) {
+    echo "pidx is missing.";
+} else {
+    echo "pidx: " . htmlspecialchars($pidx);
+}
 
 if ($pidx) {
     $curl = curl_init();
@@ -36,21 +47,22 @@ if ($pidx) {
         switch ($responseArray['status']) {
             case 'Completed':
 
-                $ground_id = $_SESSION['ground_id'];
                 $player_id = $_SESSION['player_id'];
                 $selectedDate = $_SESSION['selectedDate'];
                 $selectedTimeSlot = $_SESSION['selectedTimeSlot'];
+
+
                 $owner_id = $row['owner_id'];
                 $payment = 200;
 
-                // Insert the booking details into the database
-                $query = "INSERT INTO booking (ground_id, booking_date, booking_time, player_id, payment, status, owner_id) 
-                          VALUES (?, ?, ?, ?, ?, 'Pending', ?)";
+                $query = "INSERT INTO booking (ground_id, booking_date, booking_time, player_id, payment,status, owner_id, created_at) 
+                VALUES ($ground_id, '$selectedDate', '$selectedTimeSlot', $player_id, $payment, 'Verified', $owner_id, NOW())";
 
-                $stmt = $con->prepare($query);
-                $stmt->bind_param("issiii", $ground_id, $selectedDate, $selectedTimeSlot, $player_id, $payment, $owner_id);
 
-                if ($stmt->execute()) {
+                $result = mysqli_query($con, $query);
+
+
+                if ($result) {
                     // Booking inserted successfully
                     $_SESSION['transaction_msg'] = '<script>
                         Swal.fire({
@@ -63,6 +75,7 @@ if ($pidx) {
 
                     // Redirect to the success message page
                     header("Location: payment-message.php");
+
                     exit();
                 } else {
                     // Failed to insert booking
@@ -85,7 +98,7 @@ if ($pidx) {
                     </script>';
 
                 // Redirect to the time slot page
-                header("Location: timeslot.php");
+                header("Location: booking.php?ground_id=" . $ground_id);
                 exit();
 
             default:
@@ -99,7 +112,7 @@ if ($pidx) {
                         });
                     </script>';
 
-                header("Location: timeslot.php");
+                header("Location: booking.php?ground_id=" . $ground_id);
                 exit();
         }
     }

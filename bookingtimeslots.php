@@ -15,6 +15,10 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 $owner_id = $_SESSION['owner_id'];
 
 $ground_id = $_GET['ground_id'];
+$query = "SELECT amount FROM ground WHERE ground_id = $ground_id";
+$result = mysqli_query($con, $query);
+$row = mysqli_fetch_assoc($result);
+$amount = $row['amount'];
 $selectedDate = $_GET['selectedDate'];
 
 // Generate the time slots (from 8 AM to 8 PM, with an interval of 1 hour)
@@ -170,7 +174,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                         <form method="POST" style="display: inline-block;">
                             <input type="hidden" name="ground_id" value="' . $ground_id . '">
                             <input type="hidden" name="selectedDate" value="' . $selectedDate . '">
-                            <input type="text" name="payment" placeholder="Enter payment amount" required>
+                            <input type="text" name="payment" value="' . $amount . '" required>
                             <input type="hidden" name="selectedTimeSlot" value="' . $timeSlot . '">
                             <button type="submit" class="btn-pay" name="bookNow">Book Now</button>
                         </form>';
@@ -188,8 +192,8 @@ if ($result && mysqli_num_rows($result) > 0) {
                     $payment = $_POST['payment'];
                     $player_id = $_SESSION['player_id'];
 
-                    $insertQuery = "INSERT INTO booking (ground_id, booking_date, booking_time, payment,status,owner_id)
-                            VALUES ('$ground_id', '$selectedDate', '$selectedTimeSlot', '$payment', 'Verified','$owner_id')";
+                    $insertQuery = "INSERT INTO booking (ground_id, booking_date, booking_time, payment,status,owner_id,created_at)
+                            VALUES ('$ground_id', '$selectedDate', '$selectedTimeSlot', '$payment', 'Verified','$owner_id',NOW())";
                     $insertResult = mysqli_query($con, $insertQuery);
 
                     if ($insertResult) {

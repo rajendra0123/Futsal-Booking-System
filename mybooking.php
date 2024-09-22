@@ -18,78 +18,97 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 <head>
     <style>
-        .dropdown a {
-            text-decoration: none;
-            color: black;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
 
-        .futsal-section {
+        .container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 75px;
-            margin-top: 30px;
-
+            justify-content: center;
+            margin: 20px;
         }
-
-        .mid {
-            margin-left: 300px;
-            width: 100%;
-            align-items: center;
-            display: flex;
-            position: relative;
-            height: 50px;
-        }
-
-        .mid img {
-            height: 20px;
-            margin-left: 8.5px;
-        }
-
-        table {
-            width: 100%;
-        }
-
-        /* .hidden {
-                display: none;
-            } */
 
         .content {
-            margin-top: 80px;
-            margin-left: 80px;
+            width: 100%;
+            max-width: 1200px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
         }
 
         table {
-            width: 90%;
+            width: 100%;
             border-collapse: collapse;
         }
 
         th,
         td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
         }
 
-        form {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
+        tr:hover {
+            background-color: #ddd;
         }
 
         input[type="submit"] {
-            background-color: red;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         input[type="submit"]:hover {
-            background-color: black;
+            background-color: #45a049;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btns form {
+            margin: 0;
+        }
+
+        .action-btns input[type="submit"] {
+            background-color: #f44336;
+        }
+
+        .action-btns input[type="submit"]:hover {
+            background-color: #e53935;
+        }
+
+        .action-btns .verify-btn {
+            background-color: #4CAF50;
+        }
+
+        .action-btns .verify-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -103,7 +122,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
         <div class="content">
 
             <h3 align="center">Booking Details</h3>
-            <table id="table-player" class="hidden">
+            <table id="table-player">
                 <thead>
                     <tr>
                         <th>Futsal Name</th>
@@ -118,27 +137,37 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                 </thead>
                 <tbody>
                     <?php
-                    if ($loggedin) {
-                        $player_id = $_SESSION['player_id'];
-                        $sql = "SELECT p.email,g.ground_name, g.ground_location, g.contact, g.amount, b.booking_id, b.booking_date, b.booking_time, b.status
+
+                    $player_id = $_SESSION['player_id'];
+
+                    $sql = "SELECT p.email,g.ground_name, g.ground_location, g.contact, g.amount, b.booking_id, b.booking_date, b.booking_time,b.created_at, b.status
                             FROM booking b
                             JOIN ground g ON g.ground_id = b.ground_id
                             JOIN player p ON p.player_id = b.player_id
                             WHERE b.player_id = $player_id";
-                        $result = mysqli_query($con, $sql);
-                        if ($result) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $email = $row['email'];
-                                $ground_name = $row['ground_name'];
-                                $contact = $row['contact'];
-                                $ground_location = $row['ground_location'];
-                                $booking_id = $row['booking_id'];
-                                $booking_time = $row['booking_time'];
-                                $booking_date = $row['booking_date'];
-                                $amount = $row['amount'];
-                                $status = $row['status'];
+                    $result = mysqli_query($con, $sql);
+                    if ($result) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $email = $row['email'];
+                            $ground_name = $row['ground_name'];
+                            $contact = $row['contact'];
+                            $ground_location = $row['ground_location'];
+                            $booking_id = $row['booking_id'];
+                            $booking_time = $row['booking_time'];
+                            $booking_date = $row['booking_date'];
+                            $amount = $row['amount'];
+                            $status = $row['status'];
+                            $createdAt = $row['created_at'];
 
-                                echo '
+                            date_default_timezone_set('Asia/Kathmandu');
+
+                            $currentDateTime = time();
+                            $bookingCreatedAt = strtotime($createdAt);
+
+                            $timeDifference = ($currentDateTime - $bookingCreatedAt) / 60;
+
+
+                            echo '
             <tr>
                 <td>' . $ground_name . '</td>
                 <td>' . $contact . '</td>
@@ -147,22 +176,27 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                 <td>' . $booking_time . '</td>
                 <td>';
 
-                                if ($status === 'Verified') {
-                                    echo 'Booked';
-                                } else {
-                                    echo 'Pending';
-                                }
+                            if ($status === 'Verified') {
+                                echo 'Booked';
+                            } else {
+                                echo 'Pending';
+                            }
 
-                                echo '</td>
-                                <td>
-                                <form method="POST" action="">
-                                <input type="submit" name="delete" value="Cancel">
-                                </form>
-                                </td>
-                    <td>';
+                            echo '</td>
+                            <td>';
 
-                                if ($status === 'Verified') {
-                                    echo '
+                            if ($timeDifference <= 45) {
+                                echo '<form method="POST" action="">
+                                        <input type="submit" name="delete" value="Cancel">
+                                      </form>';
+                            } else {
+                                echo 'Cancellation not allowed';
+                            }
+                            echo '</td>
+                <td>';
+
+                            if ($status === 'Verified') {
+                                echo '
                         <form method="POST" action="receipt.php">
                             <input type="hidden" name="receipt" value="receipt">
                             <input type="hidden" name="ground_name" value="' . $ground_name . '">
@@ -174,15 +208,15 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                             <input type="hidden" name="contact" value="' . $contact . '">
                             <input type="submit" value="Receipt" name="Receipt">
                         </form>';
-                                } else {
-                                    echo 'N/A';
-                                }
-
-                                echo '</td>
-                </tr>';
+                            } else {
+                                echo 'N/A';
                             }
+
+                            echo '</td>
+                </tr>';
                         }
                     }
+
 
                     //deletion
                     

@@ -1,33 +1,31 @@
-/* CSS styles for the admin dashboard */
-.container {
-    display: flex;
-  }
-  
-  .sidebar {
-    width: 30%;
-  }
-  
-  .content {
-    width: 70%;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    cursor: pointer;
-    padding: 10px;
-    background-color: #f1f1f1;
-    margin-bottom: 5px;
-  }
-  
-  table {
-    width: 100%;
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
+CSS styles for the admin dashboard .container {
+  display: flex;
+}
+
+.sidebar {
+  width: 30%;
+}
+
+.content {
+  width: 70%;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #f1f1f1;
+  margin-bottom: 5px;
+}
+
+table {
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}

@@ -140,9 +140,9 @@ include 'conn.php';
                     <?php
                     $owner_id = $_SESSION['owner_id'];
                     $sql = "SELECT p.fullname, p.email, p.contact, b.booking_id, b.ground_id, b.booking_date, b.booking_time, b.payment, b.status
-                    FROM booking b
-                    LEFT JOIN player p ON p.player_id = b.player_id
-                    WHERE b.owner_id = $owner_id";
+    FROM booking b
+    LEFT JOIN player p ON p.player_id = b.player_id
+    WHERE b.owner_id = $owner_id";
 
                     $result = mysqli_query($con, $sql);
                     if ($result) {
@@ -164,30 +164,23 @@ include 'conn.php';
                                 <td>' . $amount . '</td>
                                 <td>';
 
+                            // Display "Verified" if status is "Verified", otherwise show Verify button if status is "pending"
                             if ($status === 'Verified') {
                                 echo 'Verified';
-                            } else {
+                            } else if ($status === 'Pending') {
                                 echo '
-                                <form method="POST" class="action-btns" action="bookingdetails.php>
-                                    <input type="hidden" name="booking_id" value="' . $booking_id . '">';
-
-
-                                if ($status === 'pending') {
-                                    echo '<input type="submit" value="Verify" name="verify" class="verify-btn">';
-                                } else {
-                                    echo '<input type="submit" value="Verify" name="verify" disabled class="verify-btn">';
-                                }
-
-                                echo '
-                                </form>';
+                                    <form method="POST" action="bookingdetails.php">
+                                        <input type="hidden" name="booking_id" value="' . $booking_id . '">
+                                        <input type="submit" value="Verify" name="verify" class="verify-btn">
+                                    </form>';
                             }
 
                             echo '
                                 </td>
                                 <td class="action-btns">
-                                    <form method="POST" action="bookingdetails.php>
+                                    <form method="POST" action="bookingdetails.php">
                                         <input type="hidden" name="booking_id" value="' . $booking_id . '">
-                                        <input type="submit" value="Delete" name="delete">
+                                        <input type="submit" value="Delete" name="delete" class="delete-btn">
                                     </form>
                                 </td>
                             </tr>';
@@ -197,6 +190,7 @@ include 'conn.php';
                     }
                     ?>
                 </tbody>
+
             </table>
         </div>
     </div>

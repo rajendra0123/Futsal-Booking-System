@@ -3,6 +3,7 @@ session_start();
 include 'conn.php';
 include 'nav.php';
 
+
 $ground_id = $_GET['ground_id'];
 $selectedDate = $_GET['selectedDate'];
 
@@ -144,7 +145,7 @@ if ($result && mysqli_num_rows($result) > 0) {
         }
 
         .confirm-btn {
-            background-color: #4CAF50;
+            background-color: blue;
             color: white;
             padding: 10px;
             border: none;
@@ -154,7 +155,7 @@ if ($result && mysqli_num_rows($result) > 0) {
         }
 
         .cancel-btn {
-            background-color: #f44336;
+            background-color: red;
             color: white;
             padding: 10px;
             border: none;
@@ -165,6 +166,8 @@ if ($result && mysqli_num_rows($result) > 0) {
     </style>
 </head>
 <script src="https://khalti.com/static/khalti-checkout.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
@@ -183,8 +186,9 @@ if ($result && mysqli_num_rows($result) > 0) {
 
             foreach ($timeSlots as $timeSlot) {
                 $isCurrentDate = ($selectedDate === $currentDate);
-
                 $status = 'Available';
+
+                // Check if the slot is available or not based on the time
                 if ($isCurrentDate) {
                     $currentTime = date('H:i:s');
                     if ($timeSlot < $currentTime) {
@@ -192,34 +196,35 @@ if ($result && mysqli_num_rows($result) > 0) {
                     }
                 }
 
+                // Check if the slot is already booked (Pending or Verified)
                 foreach ($bookedTimeSlots as $bookedTimeSlot) {
-                    if ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'Verified') {
-                        $status = 'Booked';
-                    } elseif ($bookedTimeSlot['booking_time'] === $timeSlot && $bookedTimeSlot['status'] === 'pending') {
-                        $status = 'Pending';
+                    if ($bookedTimeSlot['booking_time'] === $timeSlot && ($bookedTimeSlot['status'] === 'Verified' || $bookedTimeSlot['status'] === 'Pending')) {
+                        $status = 'Booked';  // Mark as Booked for both Pending and Verified statuses
                         break;
                     }
                 }
 
+                // Set class for status coloring
                 $class = '';
                 if ($status === 'Available') {
                     $class = 'available';
                 } elseif ($status === 'Booked') {
                     $class = 'booked';
-                } elseif ($status === 'Pending') {
-                    $class = 'pending';
+                } elseif ($status === 'Not Available') {
+                    $class = 'not-available';
                 }
 
-                $button = '';
+                // Handle the display: button for available slots, "Booked" for others
+                $display = '';
                 if ($status === 'Available') {
-
-                    $button = '<a class="btn-pay" href="#" onclick="showModal(\'' . $ground_id . '\', \'' . urlencode($selectedDate) . '\', \'' . urlencode($timeSlot) . '\')">Book Now</a>';
-                } elseif ($status === 'Pending') {
-                    $button = ''; // Empty button for Pending status
+                    $display = '<a class="btn-pay" href="#" onclick="showModal(\'' . $ground_id . '\', \'' . urlencode($selectedDate) . '\', \'' . urlencode($timeSlot) . '\')">Book Now</a>';
+                } else {
+                    $display = $status; // For Booked or Not Available, just show the status text
                 }
 
-                echo "<tr><td>$timeSlot</td><td class=\"$class\"><span class=\"status-text\">$status</span>$button</td></tr>";
+                echo "<tr><td>$timeSlot</td><td class=\"$class\"><span class=\"status-text\">$display</span></td></tr>";
             }
+
             ?>
         </table>
     </div>
@@ -229,7 +234,7 @@ if ($result && mysqli_num_rows($result) > 0) {
             <span class="close" onclick="closeModal()">&times;</span>
             <h2>Confirm Booking</h2>
             <p>Do you want to proceed with advance booking via Khalti?</p>
-            <form id="bookingForm" method="POST" action="pay.php">
+            <form id="bookingForm" action="pay.php" method="POST">
                 <input type="hidden" name="ground_id" id="modalGroundId">
                 <input type="hidden" name="selectedDate" id="modalSelectedDate">
                 <input type="hidden" name="selectedTimeSlot" id="modalSelectedTimeSlot">
@@ -250,6 +255,8 @@ if ($result && mysqli_num_rows($result) > 0) {
             document.getElementById('modalGroundId').value = groundId;
             document.getElementById('modalSelectedDate').value = selectedDate;
             document.getElementById('modalSelectedTimeSlot').value = selectedTimeSlot;
+
+
 
             // Store booking details in session
             $.ajax({
