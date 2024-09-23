@@ -19,6 +19,13 @@ if (isset($_SESSION['owner_id'])) {
     if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $userName = $row['fullname'];
+
+        $query = "SELECT ground_id, status FROM ground WHERE owner_id = '$owner_id'";
+        $result = mysqli_query($con, $query);
+        $ground = mysqli_fetch_assoc($result);
+
+        $ground_id = $ground['ground_id'] ?? null;
+        $status = $ground['status'] ?? null;
     }
 } elseif (isset($_SESSION['player_id'])) {
     $role = 'player';
@@ -59,7 +66,10 @@ if (isset($_SESSION['owner_id'])) {
                     // Display navigation items for owners
                     if ($current_page == 'futsalregister.php') {
                         echo '<a href="ownerdetails.php?owner_id=' . $owner_id . '">Edit DETAILS</a>';
+
+                        // Check if the owner has a registered futsal that is verified
                         if (isset($status) && $status === 'Verified' && isset($ground_id) && !empty($ground_id)) {
+                            // Show "MYGROUND" only if the futsal is verified
                             echo '<a href="myground.php">MYGROUND</a>';
                         }
                     } elseif ($current_page == 'ownerdetails.php') {

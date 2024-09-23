@@ -29,28 +29,74 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
     $owner_id = $row['owner_id'];
 }
 
-// Fetch total bookings and revenue data
-$query = "SELECT g.ground_name, COUNT(b.booking_id) AS total_bookings, SUM(b.payment) AS total_revenue 
-FROM `ground` g
-LEFT JOIN `booking` b ON g.ground_id = b.ground_id AND b.status = 'Verified'
+// Fetch total bookings and revenue data for each ground
+$query = "
+SELECT 
+    g.ground_id, 
+    g.ground_name, 
+    IF(COUNT(b.booking_id) > 0, g.amount, NULL) AS amount,  
+    COUNT(b.booking_id) AS total_bookings
+FROM ground g
+LEFT JOIN booking b ON g.ground_id = b.ground_id AND b.status = 'Verified'
 WHERE g.owner_id = '$owner_id'
-GROUP BY g.ground_id;"
-;
+GROUP BY g.ground_id;";
+
+
 $result = mysqli_query($con, $query);
 
-$grounds = [];
-$bookings = [];
-$revenue = [];
-
+$groundStats = [];
 while ($row = mysqli_fetch_assoc($result)) {
-    $grounds[] = $row['ground_name'];
-    $bookings[] = (int) $row['total_bookings'];
-    $revenue[] = (float) $row['total_revenue'];
+    $groundId = $row['ground_id'];
+    $groundStats[$groundId] = [
+        'ground_name' => $row['ground_name'],
+        'total_bookings' => (int) $row['total_bookings'],
+        'total_revenue' => (float) $row['amount'],
+        'monthly_bookings' => 0,
+        'todays_bookings' => 0,
+    ];
 }
 
-$grounds = json_encode($grounds);
-$bookings = json_encode($bookings);
-$revenue = json_encode($revenue);
+// Fetch this month's bookings for each ground
+$currentMonth = date('Y-m');
+$queryMonth = "
+SELECT 
+    ground_id, 
+    COUNT(booking_id) AS monthly_bookings 
+FROM booking 
+WHERE ground_id IN (SELECT ground_id FROM ground WHERE owner_id = '$owner_id') 
+AND booking_date LIKE '$currentMonth%' 
+AND status = 'Verified' 
+GROUP BY ground_id;";
+
+$resultMonth = mysqli_query($con, $queryMonth);
+while ($rowMonth = mysqli_fetch_assoc($resultMonth)) {
+    $groundId = $rowMonth['ground_id'];
+    if (isset($groundStats[$groundId])) {
+        $groundStats[$groundId]['monthly_bookings'] = (int) $rowMonth['monthly_bookings'];
+    }
+}
+
+// Fetch today's bookings for each ground
+$currentDate = date('Y-m-d');
+$queryToday = "
+SELECT 
+    ground_id, 
+    COUNT(booking_id) AS todays_bookings 
+FROM booking 
+WHERE ground_id IN (SELECT ground_id FROM ground WHERE owner_id = '$owner_id') 
+AND booking_date = '$currentDate' 
+AND status = 'Verified' 
+GROUP BY ground_id;";
+
+$resultToday = mysqli_query($con, $queryToday);
+while ($rowToday = mysqli_fetch_assoc($resultToday)) {
+    $groundId = $rowToday['ground_id'];
+    if (isset($groundStats[$groundId])) {
+        $groundStats[$groundId]['todays_bookings'] = (int) $rowToday['todays_bookings'];
+    }
+}
+
+
 ?>
 
 <head>
@@ -136,24 +182,39 @@ $revenue = json_encode($revenue);
 
         }
 
-        .chart-container {
-            margin-right: 30px;
-            width: 40%;
+        .admin-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
             background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-container h3 {
+            width: 200px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
-            font-size: 20px;
-            margin-bottom: 20px;
+            border-radius: 8px;
         }
 
-        canvas {
-            width: 100% !important;
-            height: 350px !important;
+        .stat-item h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .stat-item p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            color: #4CAF50;
+        }
+
+        .stat-item p strong {
+            font-size: 14px;
+            font-weight: normal;
+            color: #333;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -207,11 +268,33 @@ $revenue = json_encode($revenue);
             </div>
         </div>
 
-        <!-- Right side chart section -->
-        <div class="chart-container">
-            <h3>Bookings and Revenue</h3>
-            <canvas id="booking-chart"></canvas>
+        <div class="admin-stats">
+            <?php foreach ($groundStats as $ground): ?>
+                <div class="stat-item">
+                    <p><strong>Total Bookings:</strong></p>
+                    <p><?php echo $ground['total_bookings']; ?></p>
+                </div>
+
+                <div class="stat-item">
+                    <p><strong>Total Revenue:</strong></p>
+                    <p>NPR <?php echo number_format($ground['total_revenue'], 2); ?></p>
+                </div>
+
+                <div class="stat-item">
+                    <p><strong>This Month's Bookings:</strong></p>
+                    <p><?php echo $ground['monthly_bookings']; ?></p>
+                </div>
+
+                <div class="stat-item">
+                    <p><strong>Today's Bookings:</strong></p>
+                    <p><?php echo $ground['todays_bookings']; ?></p>
+                </div>
+            <?php endforeach; ?>
         </div>
+
+
+
+
     </div>
 
     <script>
@@ -259,72 +342,9 @@ $revenue = json_encode($revenue);
                 location.reload();
             }
         };
-
-        // Chart.js implementation
-        var ctx = document.getElementById('booking-chart').getContext('2d');
-        var bookingChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: <?php echo $grounds; ?>,
-                datasets: [{
-                    label: 'Total Bookings',
-                    data: <?php echo $bookings; ?>,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                }, {
-                    label: 'Total Revenue',
-                    data: <?php echo $revenue; ?>,
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1,
-                    yAxisID: 'y2',
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y1: {
-                        beginAtZero: true,
-                        position: 'left',
-                        ticks: {
-                            stepSize: 2,
-                        },
-                        title: {
-                            display: true,
-                            text: 'Total Bookings'
-                        }
-                    },
-                    y2: {
-                        beginAtZero: true,
-                        position: 'right',
-                        ticks: {
-
-                        },
-                        title: {
-                            display: true,
-                            text: 'Total Revenue'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        enabled: false
-
-                    }
-                }
-            }
-        });
-
     </script>
+
+
 
 </body>
 

@@ -421,15 +421,6 @@ if ($row = mysqli_fetch_assoc($result)) {
     <?php
 
 
-    // // Check if the owner has already added a ground
-    // $sql = "SELECT * FROM ground WHERE owner_id = $owner_id";
-    // $result = mysqli_query($con, $sql);
-    // if ($result && mysqli_num_rows($result) > 0) {
-    //   echo '<script>alert("You have already added a ground");';
-    //   echo 'window.location.href = "futsalregister.php";</script>';
-    //   exit();
-    // }
-  
     if ($isValid) {
       $sql = "INSERT INTO ground (futsal_logo, ground_name, ground_location, ground_latitude, ground_longitude, contact, amount, ground_description, ground_image, owner_id, status)
                 VALUES ('$futsal_logo_folder', '$ground_name', '$ground_location', '$latitude', '$longitude', '$contact', '$amount', '$ground_description', '$ground_image_folder', '$owner_id', 'pending')";
@@ -446,7 +437,6 @@ if ($row = mysqli_fetch_assoc($result)) {
           document.getElementById("notification").style.display = "block";
           setTimeout(function() {
               document.getElementById("notification").style.display = "none";
-           
           }, 2000); 
         </script>';
       } else {
