@@ -575,7 +575,7 @@ if (isset($_POST['login'])) {
 
     <?php
 
-    $sql = "SELECT * FROM ground LIMIT 5";
+    $sql = "SELECT * FROM ground LIMIT 6";
     $result = mysqli_query($con, $sql);
     echo '<section class="futsal-section">';
     while ($row = mysqli_fetch_assoc($result)) {
@@ -765,7 +765,7 @@ if (isset($_POST['login'])) {
             setTimeout(() => {
                 successPopup.style.display = 'none';
                 showLoginPopup(); // Show login popup after success message
-            }, 3000);
+            }, 1000);
         }
 
         if (errorPopup) {
