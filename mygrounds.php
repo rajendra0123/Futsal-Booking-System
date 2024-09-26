@@ -290,7 +290,7 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
             $deleteResult = mysqli_query($con, $deleteQuery);
 
             if ($deleteResult) {
-                echo '<script>alert("Ground deleted successfully")</script>';
+                echo '<script>alert("Futsal deleted successfully")</script>';
                 echo '<script>window.location.href = "futsalregister.php"</script>';
                 exit;
             } else {

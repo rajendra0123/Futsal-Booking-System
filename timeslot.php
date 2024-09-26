@@ -256,8 +256,6 @@ if ($result && mysqli_num_rows($result) > 0) {
             document.getElementById('modalSelectedDate').value = selectedDate;
             document.getElementById('modalSelectedTimeSlot').value = selectedTimeSlot;
 
-
-
             // Store booking details in session
             $.ajax({
                 url: 'store_booking_detail.php',
