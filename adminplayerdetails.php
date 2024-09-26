@@ -111,6 +111,38 @@
                 margin-bottom: 5px;
             }
 
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+
+            .container {
+                display: flex;
+                justify-content: center;
+                margin: 20px;
+            }
+
+            .content {
+                width: 100%;
+                max-width: 1200px;
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            h3 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 24px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+            }
+
             table {
                 width: 100%;
                 border-collapse: collapse;

@@ -438,6 +438,7 @@ if ($row = mysqli_fetch_assoc($result)) {
           setTimeout(function() {
               document.getElementById("notification").style.display = "none";
           }, 2000); 
+          
         </script>';
       } else {
         echo "Error: " . mysqli_error($con);

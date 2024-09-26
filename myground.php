@@ -2,6 +2,7 @@
 <html>
 <?php
 session_start();
+$owner_id = $_SESSION['owner_id'];
 include 'conn.php';
 if (isset($_SESSION['owner_id']) && $_SESSION['loggedin'] === true) {
 } else {
@@ -14,6 +15,26 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $loggedin = true;
 } else {
     $loggedin = false;
+}
+
+
+$query = "
+SELECT * FROM `ground`
+WHERE owner_id = '$owner_id' AND status = 'Verified'";
+
+$result = mysqli_query($con, $query);
+
+// Check if the query executed successfully
+if ($result) {
+    // Check if there are any verified grounds
+    if (mysqli_num_rows($result) == 0) {
+        // No verified grounds found, show alert and redirect
+        echo "<script>
+            alert('Please add a Futsal.');
+      window.location.href = 'futsalregister.php'; 
+        </script>";
+        exit();
+    }
 }
 
 if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
@@ -29,32 +50,34 @@ if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
     $owner_id = $row['owner_id'];
 }
 
-// Fetch total bookings and revenue data for each ground
+// revenue and total bookings
 $query = "
 SELECT 
     g.ground_id, 
     g.ground_name, 
-    IF(COUNT(b.booking_id) > 0, g.amount, NULL) AS amount,  
-    COUNT(b.booking_id) AS total_bookings
+    g.amount, 
+    COUNT(b.booking_id) AS total_bookings  
 FROM ground g
 LEFT JOIN booking b ON g.ground_id = b.ground_id AND b.status = 'Verified'
 WHERE g.owner_id = '$owner_id'
 GROUP BY g.ground_id;";
-
 
 $result = mysqli_query($con, $query);
 
 $groundStats = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $groundId = $row['ground_id'];
+    $totalRevenue = (int) $row['total_bookings'] * (float) $row['amount'];
+
     $groundStats[$groundId] = [
         'ground_name' => $row['ground_name'],
         'total_bookings' => (int) $row['total_bookings'],
-        'total_revenue' => (float) $row['amount'],
+        'total_revenue' => $totalRevenue,
         'monthly_bookings' => 0,
         'todays_bookings' => 0,
     ];
 }
+
 
 // Fetch this month's bookings for each ground
 $currentMonth = date('Y-m');
@@ -75,18 +98,18 @@ while ($rowMonth = mysqli_fetch_assoc($resultMonth)) {
         $groundStats[$groundId]['monthly_bookings'] = (int) $rowMonth['monthly_bookings'];
     }
 }
-
 // Fetch today's bookings for each ground
 $currentDate = date('Y-m-d');
 $queryToday = "
 SELECT 
-    ground_id, 
-    COUNT(booking_id) AS todays_bookings 
+    booking.ground_id, 
+    COUNT(booking.booking_id) AS todays_bookings 
 FROM booking 
-WHERE ground_id IN (SELECT ground_id FROM ground WHERE owner_id = '$owner_id') 
-AND booking_date = '$currentDate' 
-AND status = 'Verified' 
-GROUP BY ground_id;";
+JOIN ground ON booking.ground_id = ground.ground_id 
+WHERE ground.owner_id = '$owner_id' 
+AND booking.booking_date = '$currentDate' 
+AND ground.status = 'Verified' 
+GROUP BY booking.ground_id;";
 
 $resultToday = mysqli_query($con, $queryToday);
 while ($rowToday = mysqli_fetch_assoc($resultToday)) {
@@ -95,6 +118,7 @@ while ($rowToday = mysqli_fetch_assoc($resultToday)) {
         $groundStats[$groundId]['todays_bookings'] = (int) $rowToday['todays_bookings'];
     }
 }
+
 
 
 ?>
@@ -217,7 +241,7 @@ while ($rowToday = mysqli_fetch_assoc($resultToday)) {
             color: #333;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>

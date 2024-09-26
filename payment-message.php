@@ -50,7 +50,7 @@ if ($pidx) {
 
                 // Insert booking into the database
                 $query = "INSERT INTO booking (ground_id, booking_date, booking_time, player_id, payment, status, owner_id) 
-                VALUES (?, ?, ?, ?, ?, 'Pending', ?)";
+                VALUES (?, ?, ?, ?, ?, 'Verified', ?)";
                 $stmt = $con->prepare($query);
                 $stmt->bind_param("issisi", $ground_id, $selectedDate, $selectedTimeSlot, $player_id, $payment, $owner_id);
 

@@ -181,13 +181,13 @@
                          g.ground_name, b.booking_date, b.booking_time, p.fullname
                          FROM booking b
                          JOIN ground g ON b.ground_id = g.ground_id
-                         JOIN player p ON b.player_id = p.player_id";
+                         LEFT JOIN player p ON b.player_id = p.player_id";
 
                         $result = mysqli_query($con, $sql);
                         if ($result) {
                             while ($row = mysqli_fetch_assoc($result)) {
                                 $bookingID = $row['booking_id'];
-                                $fullname = $row['fullname'];
+                                $fullname = !empty($row['fullname']) ? $row['fullname'] : 'Unknown Player';
                                 $futsalName = $row['ground_name'];
                                 $bookingDate = $row['booking_date'];
                                 $bookingTime = $row['booking_time'];

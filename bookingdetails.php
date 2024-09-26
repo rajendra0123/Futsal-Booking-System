@@ -164,17 +164,18 @@ include 'conn.php';
                                 <td>' . $amount . '</td>
                                 <td>';
 
-                            // Display "Verified" if status is "Verified", otherwise show Verify button if status is "pending"
-                            if ($status === 'Verified') {
-                                echo 'Verified';
-                            } else if ($status === 'Pending') {
-                                echo '
-                                    <form method="POST" action="bookingdetails.php">
-                                        <input type="hidden" name="booking_id" value="' . $booking_id . '">
-                                        <input type="submit" value="Verify" name="verify" class="verify-btn">
-                                    </form>';
-                            }
 
+                            if ($status === 'Verified') {
+                                echo 'Booked';
+                            }
+                            // } else if ($status === 'Pending') {
+                            //     echo '
+                            //         <form method="POST" action="bookingdetails.php">
+                            //             <input type="hidden" name="booking_id" value="' . $booking_id . '">
+                            //             <input type="submit" value="Verify" name="verify" class="verify-btn">
+                            //         </form>';
+                            // }
+                    
                             echo '
                                 </td>
                                 <td class="action-btns">

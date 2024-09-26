@@ -39,7 +39,7 @@ if (isset($_SESSION['owner_id'])) {
         $userName = $row['fullname'];
     }
 } else {
-    $role = 'guest'; // No user logged in
+    $role = 'guest';
 }
 ?>
 
@@ -67,17 +67,15 @@ if (isset($_SESSION['owner_id'])) {
                     if ($current_page == 'futsalregister.php') {
                         echo '<a href="ownerdetails.php?owner_id=' . $owner_id . '">Edit DETAILS</a>';
 
-                        // Check if the owner has a registered futsal that is verified
-                        if (isset($status) && $status === 'Verified' && isset($ground_id) && !empty($ground_id)) {
-                            // Show "MYGROUND" only if the futsal is verified
-                            echo '<a href="myground.php">MYGROUND</a>';
-                        }
+
+                        echo '<a href="myground.php">MYGROUND</a>';
+
                     } elseif ($current_page == 'ownerdetails.php') {
                         echo '<a href="futsalregister.php">HOME</a>';
                     } elseif ($current_page == 'myground.php') {
                         echo '<a href="futsalregister.php">HOME</a>';
                     } elseif ($current_page == 'bookingtimeslots.php') {
-                        echo '<a href="myground.php">My Ground</a>';
+                        echo '<a href="myground.php">MY GROUND</a>';
                     }
 
                 } elseif ($role == 'player') {
@@ -103,8 +101,7 @@ if (isset($_SESSION['owner_id'])) {
                         echo '<a href="playerdetails.php?player_id=' . $player_id . '">Edit DETAILS</a>';
                     }
                 } elseif ($role == 'guest') {
-                    // // Display only the name FUTSOL when not logged in
-                    // echo '<div class="nav-title"><h1>FUTSOL</h1></div>';
+
                 }
                 ?>
 

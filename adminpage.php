@@ -24,8 +24,15 @@
   $totalUsers = $totalPlayers + $totalOwners;
 
 
-  // Fetch total revenue
-  $sqlRevenue = "SELECT SUM(payment) AS total_revenue FROM booking WHERE status = 'Verified'";
+
+  // Fetch total revenue for all grounds
+  $sqlRevenue = "
+SELECT 
+    SUM(g.amount) AS total_revenue,
+    COUNT(b.booking_id) AS total_bookings
+FROM ground g
+JOIN booking b ON g.ground_id = b.ground_id
+WHERE b.status = 'Verified';";
   $resultRevenue = mysqli_query($con, $sqlRevenue);
   $rowRevenue = mysqli_fetch_assoc($resultRevenue);
   $totalRevenue = $rowRevenue['total_revenue'];
@@ -43,11 +50,19 @@
   $monthlyBookings = $rowMonthlyBookings['monthly_bookings'];
 
   // Fetch recent transactions
-  $sqlRecentTransactions = "SELECT player.fullname, booking.payment, booking.booking_date, booking.booking_time 
-                          FROM booking 
-                          JOIN player ON booking.player_id = player.player_id
-                          WHERE booking.status = 'Verified'
-                          ORDER BY booking.created_at DESC LIMIT 5";
+  $sqlRecentTransactions = "
+  SELECT 
+      COALESCE(player.fullname, 'Unknown') AS fullname, 
+      g.amount AS payment, 
+      booking.booking_date, 
+      booking.booking_time 
+  FROM booking 
+  LEFT JOIN player ON booking.player_id = player.player_id 
+  JOIN ground g ON booking.ground_id = g.ground_id
+  WHERE booking.status = 'Verified' 
+  ORDER BY booking.created_at DESC 
+  LIMIT 5";
+
   $resultRecentTransactions = mysqli_query($con, $sqlRecentTransactions);
   ?>
 
@@ -296,7 +311,7 @@
         </table>
       </div>
     </div>
- <?php include 'adminfooter.php'; ?>
+    <?php include 'adminfooter.php'; ?>
 </body>
 
 </html>

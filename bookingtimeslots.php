@@ -190,8 +190,8 @@ if ($result && mysqli_num_rows($result) > 0) {
                     $selectedDate = $_POST['selectedDate'];
                     $selectedTimeSlot = $_POST['selectedTimeSlot'];
                     $payment = $_POST['payment'];
-                    $player_id = $_SESSION['player_id'];
-
+                    // $player_id = $_SESSION['player_id'];
+                
                     $insertQuery = "INSERT INTO booking (ground_id, booking_date, booking_time, payment,status,owner_id,created_at)
                             VALUES ('$ground_id', '$selectedDate', '$selectedTimeSlot', '$payment', 'Verified','$owner_id',NOW())";
                     $insertResult = mysqli_query($con, $insertQuery);
